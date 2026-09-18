@@ -1,0 +1,39 @@
+strategy_version: mainboard-mom60-120-v1
+strategy:
+  min_listing_days: 250
+  liquidity_min: 100000000
+  candidate_count: 20
+  max_positions: 10
+  entry_rank: 10
+  keep_rank: 20
+  target_weight: 0.08
+  max_gross: 0.8
+  max_industry: 0.25
+  momentum_windows: [60, 120]
+  trend_window: 120
+execution:
+  mode: PAPER
+  slippage_bps: 10
+  commission_rate: 0.0003
+  minimum_commission: 5
+  entry_gap_limit: 0.03
+  adv_participation: 0.001
+  fees:
+    - {effective_from: '2015-08-01', stamp_sell: 0.001, transfer_both: 0.00002}
+    - {effective_from: '2022-04-29', stamp_sell: 0.001, transfer_both: 0.00001}
+    - {effective_from: '2023-08-28', stamp_sell: 0.0005, transfer_both: 0.00001}
+risk:
+  initial_cash: 100000
+  max_drawdown: 0.15
+  daily_loss: 0.03
+  weekly_loss: 0.06
+  cooldown_sessions: 5
+data:
+  benchmark: 000300.SH
+  strict: true
+research:
+  enabled: false
+  max_candidates: 20
+  timeout_seconds: 20
+  max_calls: 5
+

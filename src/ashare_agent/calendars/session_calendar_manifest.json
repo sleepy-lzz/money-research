@@ -1,0 +1,87 @@
+{
+  "schema": "ashare-session-calendar/v1",
+  "revision": "official-sse-szse-2025-2026-r1",
+  "covered_start": "2025-01-01",
+  "covered_end": "2026-12-31",
+  "sources": [
+    {
+      "venue": "SSE",
+      "coverage_year": 2025,
+      "url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20241223_10767108.shtml",
+      "published_at": "2024-12-23",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "content_hash": "b88e5777d868192c156b85f7514fafcba8638a8bcec0cd80190b2e67769f5fff",
+      "raw_html_path": "calendars/raw/sse_2025.html",
+      "download_status": "complete",
+      "http_status": 200,
+      "attempts": 1
+    },
+    {
+      "venue": "SSE",
+      "coverage_year": 2026,
+      "url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20251222_10802507.shtml",
+      "published_at": "2025-12-22",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "content_hash": "4e260b815ce1309175ed994e6490a4ccd51b998a5f92bcdc41cec00fc6823dc7",
+      "raw_html_path": "calendars/raw/sse_2026.html",
+      "download_status": "complete",
+      "http_status": 200,
+      "attempts": 1
+    },
+    {
+      "venue": "SZSE",
+      "coverage_year": 2025,
+      "url": "https://www.szse.cn/www/disclosure/notice/general/t20241223_611283.html",
+      "published_at": "2024-12-23",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "content_hash": "1c5da711eadf27308c84f12b5908ef461fa9dc739d1476512da2754249c90c1f",
+      "raw_html_path": "calendars/raw/szse_2025.html",
+      "download_status": "complete",
+      "http_status": 200,
+      "attempts": 1
+    },
+    {
+      "venue": "SZSE",
+      "coverage_year": 2026,
+      "url": "https://www.szse.cn/disclosure/notice/general/t20251222_618087.html",
+      "published_at": "2025-12-22",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "content_hash": "1656d8708d5faed33c7588538639d96128f39fdface02cfa6eb66d796c40f14e",
+      "raw_html_path": "calendars/raw/szse_2026.html",
+      "download_status": "complete",
+      "http_status": 200,
+      "attempts": 1
+    }
+  ],
+  "rules": {
+    "weekends_closed": true,
+    "no_makeup_open_sessions": true,
+    "closed_periods": [
+      {"start": "2025-01-01", "end": "2025-01-01", "reason": "元旦"},
+      {"start": "2025-01-28", "end": "2025-02-04", "reason": "春节"},
+      {"start": "2025-04-04", "end": "2025-04-06", "reason": "清明节"},
+      {"start": "2025-05-01", "end": "2025-05-05", "reason": "劳动节"},
+      {"start": "2025-05-31", "end": "2025-06-02", "reason": "端午节"},
+      {"start": "2025-10-01", "end": "2025-10-08", "reason": "国庆节"},
+      {"start": "2026-01-01", "end": "2026-01-03", "reason": "元旦"},
+      {"start": "2026-02-15", "end": "2026-02-23", "reason": "春节"},
+      {"start": "2026-04-04", "end": "2026-04-06", "reason": "清明节"},
+      {"start": "2026-05-01", "end": "2026-05-05", "reason": "劳动节"},
+      {"start": "2026-06-19", "end": "2026-06-21", "reason": "端午节"},
+      {"start": "2026-09-25", "end": "2026-09-27", "reason": "中秋节"},
+      {"start": "2026-10-01", "end": "2026-10-07", "reason": "国庆节"}
+    ]
+  },
+  "audit": {
+    "source_cross_check": "SSE与SZSE的2025/2026休市安排原始公告一致",
+    "raw_receipt_path": "source_receipts.json",
+    "download_status": "complete",
+    "unproven": [],
+    "historical_pit": false,
+    "use": "current_forward_only"
+  }
+}

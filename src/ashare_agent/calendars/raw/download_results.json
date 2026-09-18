@@ -1,0 +1,65 @@
+{
+  "schema": "ashare-session-calendar/raw-download/v1",
+  "results": [
+    {
+      "key": "sse_2025",
+      "venue": "上海证券交易所",
+      "url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20241223_10767108.shtml",
+      "published_at": "2024-12-23",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "status": "complete",
+      "http_status": 200,
+      "final_url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20241223_10767108.shtml",
+      "raw_html_path": "calendars/raw/sse_2025.html",
+      "content_hash": "b88e5777d868192c156b85f7514fafcba8638a8bcec0cd80190b2e67769f5fff",
+      "bytes": 28979,
+      "attempts": 1
+    },
+    {
+      "key": "sse_2026",
+      "venue": "上海证券交易所",
+      "url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20251222_10802507.shtml",
+      "published_at": "2025-12-22",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "status": "complete",
+      "http_status": 200,
+      "final_url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20251222_10802507.shtml",
+      "raw_html_path": "calendars/raw/sse_2026.html",
+      "content_hash": "4e260b815ce1309175ed994e6490a4ccd51b998a5f92bcdc41cec00fc6823dc7",
+      "bytes": 29251,
+      "attempts": 1
+    },
+    {
+      "key": "szse_2025",
+      "venue": "深圳证券交易所",
+      "url": "https://www.szse.cn/www/disclosure/notice/general/t20241223_611283.html",
+      "published_at": "2024-12-23",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "status": "complete",
+      "http_status": 200,
+      "final_url": "https://www.szse.cn/www/disclosure/notice/general/t20241223_611283.html",
+      "raw_html_path": "calendars/raw/szse_2025.html",
+      "content_hash": "1c5da711eadf27308c84f12b5908ef461fa9dc739d1476512da2754249c90c1f",
+      "bytes": 33553,
+      "attempts": 1
+    },
+    {
+      "key": "szse_2026",
+      "venue": "深圳证券交易所",
+      "url": "https://www.szse.cn/disclosure/notice/general/t20251222_618087.html",
+      "published_at": "2025-12-22",
+      "published_precision": "day",
+      "fetched_at": "2026-09-11T01:18:59+08:00",
+      "status": "complete",
+      "http_status": 200,
+      "final_url": "https://www.szse.cn/disclosure/notice/general/t20251222_618087.html",
+      "raw_html_path": "calendars/raw/szse_2026.html",
+      "content_hash": "1656d8708d5faed33c7588538639d96128f39fdface02cfa6eb66d796c40f14e",
+      "bytes": 24946,
+      "attempts": 1
+    }
+  ]
+}

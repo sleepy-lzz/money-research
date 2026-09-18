@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>盘中观察 · A股研究工作台</title>
+  <style>
+    #message:empty { display: none; }
+    a.button { white-space: nowrap; }
+    :root { --navy:#112846; --navy-2:#1d3b60; --teal:#0b8f89; --teal-dark:#08736f; --ink:#17263a; --muted:#66778b; --line:#dce5ec; --paper:#fff; --soft:#f5f8fa; --success:#176b51; --success-bg:#eaf7f1; --warning:#8d590d; --warning-bg:#fff8e8; --danger:#a62e42; --danger-bg:#fff1f3; --shadow:0 16px 44px rgba(17,40,70,.08); }
+    * { box-sizing:border-box; }
+    html, body { min-height:100%; }
+    body { margin:0; color:var(--ink); background:#f7fafc; font-family:"Microsoft YaHei UI","Microsoft YaHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:14px; line-height:1.55; }
+    button, input { font:inherit; }
+    button { cursor:pointer; }
+    button:disabled, input:disabled { cursor:not-allowed; opacity:.55; }
+    .app-shell { min-height:100vh; display:flex; }
+    .sidebar { width:260px; flex:0 0 260px; padding:28px 18px; color:#eaf2fb; background:var(--navy); display:flex; flex-direction:column; gap:28px; }
+    .brand { padding:2px 12px; }
+    .brand-mark { width:34px; height:5px; margin-bottom:15px; border-radius:3px; background:var(--teal); }
+    .brand h1 { margin:0; color:#fff; font-size:20px; letter-spacing:.02em; }
+    .brand p { margin:5px 0 0; color:#a9bed4; font-size:12px; }
+    .nav-label { margin:0 12px 8px; color:#7f9ab5; font-size:11px; letter-spacing:.14em; }
+    .nav-list { display:grid; gap:5px; }
+    .nav-item { display:block; padding:12px 14px; border:1px solid transparent; border-radius:8px; color:#bdcde0; text-decoration:none; transition:background .16s,color .16s,border-color .16s; }
+    .nav-item:hover { color:#fff; background:rgba(255,255,255,.07); }
+    .nav-item.active { color:#fff; background:var(--navy-2); border-color:rgba(141,220,214,.25); }
+    .nav-item .nav-title { display:block; font-weight:700; }
+    .nav-item .nav-subtitle { display:block; margin-top:2px; color:#89a3bd; font-size:12px; }
+    .nav-item.active .nav-subtitle { color:#a4d8d2; }
+    .sidebar-foot { margin-top:auto; padding:14px 12px 2px; border-top:1px solid rgba(224,237,247,.14); color:#91a9bf; font-size:12px; }
+    .main { min-width:0; flex:1; padding:26px clamp(18px,4vw,56px) 54px; }
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:24px; }
+    .eyebrow { margin:0 0 6px; color:var(--teal-dark); font-size:12px; font-weight:700; letter-spacing:.1em; }
+    .topbar h2 { margin:0; color:var(--navy); font-size:clamp(23px,3vw,32px); line-height:1.2; }
+    .topbar p { margin:8px 0 0; color:var(--muted); }
+    .status-pill { white-space:nowrap; padding:8px 13px; border:1px solid #b7d9d6; border-radius:99px; color:var(--teal-dark); background:#effaf8; font-size:12px; font-weight:700; }
+    .status-pill.off { color:#53667a; border-color:#d2dce4; background:#f2f5f7; }
+    .status-pill.error { color:var(--danger); border-color:#ecc1ca; background:var(--danger-bg); }
+    .grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr); gap:18px; align-items:start; }
+    .card { padding:24px; border:1px solid var(--line); border-radius:12px; background:var(--paper); box-shadow:var(--shadow); }
+    .card + .card { margin-top:18px; }
+    .card-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:18px; }
+    .card h3 { margin:0; color:var(--navy); font-size:18px; }
+    .card h4 { margin:0; color:var(--navy); font-size:15px; }
+    .helper { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    .form-grid { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:15px; }
+    .field { grid-column:span 6; min-width:0; }
+    .field label { display:block; margin-bottom:6px; color:#34485f; font-size:12px; font-weight:700; }
+    .input { width:100%; min-height:42px; padding:9px 11px; border:1px solid #cbd8e2; border-radius:7px; outline:none; color:var(--ink); background:#fff; }
+    .input:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(11,143,137,.12); }
+    .field-note { margin-top:5px; color:#77889b; font-size:12px; }
+    .checks { display:grid; gap:10px; margin-top:17px; }
+    .check { display:flex; align-items:flex-start; gap:9px; padding:11px 12px; border:1px solid var(--line); border-radius:8px; background:#fbfdfe; }
+    .check input { margin-top:3px; accent-color:var(--teal); }
+    .check label { margin:0; color:#34485f; font-size:13px; font-weight:700; }
+    .check small { display:block; margin-top:2px; color:var(--muted); font-size:12px; font-weight:400; }
+    .actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:21px; }
+    .button { min-height:40px; padding:8px 15px; border:1px solid transparent; border-radius:7px; font-weight:700; }
+    .primary { color:#fff; background:var(--teal); }
+    .primary:hover { background:var(--teal-dark); }
+    .secondary { color:var(--navy); background:#fff; border-color:#bfcfdb; }
+    .secondary:hover { border-color:var(--teal); color:var(--teal-dark); }
+    .danger { color:var(--danger); background:var(--danger-bg); border-color:#efc1ca; }
+    .danger:hover { background:#ffe5e9; }
+    .status-line { display:flex; align-items:center; gap:9px; min-height:22px; margin-top:14px; color:var(--muted); font-size:13px; }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:#98a8b8; }
+    .status-dot.running { background:var(--teal); box-shadow:0 0 0 4px rgba(11,143,137,.13); }
+    .status-dot.error { background:var(--danger); }
+    .status-dot.success { background:var(--success); }
+    .notice { padding:12px 14px; border:1px solid #cce3e2; border-radius:8px; color:#245b5b; background:#f2fbfa; }
+    .notice.warning { border-color:#efd99e; color:#80510c; background:var(--warning-bg); }
+    .notice.error { border-color:#edc2cb; color:#852a3a; background:var(--danger-bg); }
+    .notice.success { border-color:#b9ddce; color:var(--success); background:var(--success-bg); }
+    .notice + .notice { margin-top:10px; }
+    .data-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .data-cell { min-height:72px; padding:12px; border:1px solid var(--line); border-radius:8px; background:#fbfdfe; }
+    .data-label { color:var(--muted); font-size:11px; }
+    .data-value { margin-top:5px; color:var(--navy); font-size:16px; font-weight:700; word-break:break-word; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
+    table { width:100%; border-collapse:collapse; white-space:nowrap; }
+    th, td { padding:10px 11px; border-bottom:1px solid #e7edf1; text-align:left; }
+    th { color:#52657a; background:#f6f9fb; font-size:11px; }
+    td { color:#2a3d50; font-size:12px; }
+    tbody tr:last-child td { border-bottom:0; }
+    .table-empty { padding:23px; color:var(--muted); text-align:center; }
+    .qty-input { width:110px; min-height:34px; padding:6px 8px; }
+    .tag { display:inline-flex; align-items:center; min-height:24px; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; }
+    .tag.running { color:var(--teal-dark); background:#e9f8f7; }
+    .tag.complete, .tag.ok { color:var(--success); background:var(--success-bg); }
+    .tag.partial, .tag.waiting { color:var(--warning); background:var(--warning-bg); }
+    .tag.blocked, .tag.failed, .tag.error { color:var(--danger); background:var(--danger-bg); }
+    .tag.off { color:#53667a; background:#edf1f4; }
+    .section-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:23px 0 12px; }
+    .section-title:first-child { margin-top:0; }
+    .empty { padding:27px 16px; border:1px dashed #cbd8e2; border-radius:8px; color:var(--muted); text-align:center; }
+    .empty strong { display:block; margin-bottom:4px; color:var(--navy); }
+    .alert-list { display:grid; gap:9px; margin:0; padding:0; list-style:none; }
+    .alert-item { padding:11px 12px; border-left:3px solid var(--warning); border-radius:7px; color:#52677b; background:#fffaf0; }
+    .alert-item strong { color:var(--navy); }
+    .footer { margin-top:28px; color:#8190a0; font-size:12px; }
+    @media (max-width:980px) { .sidebar { width:215px; flex-basis:215px; } .grid { grid-template-columns:1fr; } }
+    @media (max-width:660px) { .app-shell { display:block; } .sidebar { width:auto; padding:18px; } .nav-list { grid-template-columns:repeat(4,minmax(0,1fr)); } .nav-item { padding:9px 7px; } .nav-item .nav-subtitle { display:none; } .main { padding:23px 12px 42px; } .topbar { display:block; } .status-pill { display:inline-flex; margin-top:14px; } .card { padding:17px; } .field { grid-column:1 / -1; } .data-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true"></div><h1>A股研究工作台</h1><p>盘中观察 · 人工确认</p></div>
+      <div>
+        <p class="nav-label">WORKBENCH</p>
+        <nav class="nav-list" aria-label="主导航">
+          <a class="nav-item" href="/"><span class="nav-title">当前研究</span><span class="nav-subtitle">/</span></a>
+          <a class="nav-item" href="/planner"><span class="nav-title">持续计划</span><span class="nav-subtitle">/planner</span></a>
+          <a class="nav-item" href="/paper"><span class="nav-title">模拟账户</span><span class="nav-subtitle">/paper</span></a>
+          <a class="nav-item active" href="/intraday" aria-current="page"><span class="nav-title">盘中观察</span><span class="nav-subtitle">/intraday</span></a>
+        </nav>
+      </div>
+      <div class="sidebar-foot">免费轮询有延迟，不保证成交；页面不下单。新闻沿用收盘证据，不是实时新闻。</div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div><p class="eyebrow">INTRADAY OBSERVATION</p><h2>盘中观察</h2><p>以人工确认的账户资料为边界，轮询行情并展示条件触发。</p></div>
+        <span id="running-pill" class="status-pill off">未启动</span>
+      </div>
+
+      <div id="message" class="notice hidden" role="status" aria-live="polite"></div>
+      <div class="grid">
+        <section class="card">
+          <div class="card-heading"><div><h3>启动确认</h3><p class="helper">启动前必须重新核对完整持仓、成本口径和除权资料。</p></div><span id="revision-tag" class="tag off">账户版本 —</span></div>
+          <div class="notice warning">行情观察不会连接券商，也不会提交订单。冻结现金、其他资产和每只股票的可卖数量必须由你明确填写。买入数量由后台根据有效收盘计划决定；没有可用计划时仍可观察已有持仓。</div>
+          <form id="start-form" novalidate>
+            <div class="form-grid" style="margin-top:16px">
+              <div class="field"><label for="frozen-cash">冻结现金（元）</label><input id="frozen-cash" class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="必填，留空不启动"><div class="field-note">以账户确认时的实际冻结现金为准。</div></div>
+              <div class="field"><label for="other-assets">其他资产（元）</label><input id="other-assets" class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="必填，无则填 0"><div class="field-note">不把未知资产默认为现金。</div></div>
+            </div>
+            <div class="section-title"><h4>每只股票实际可卖数量</h4><span id="position-hint" class="helper">等待账户资料</span></div>
+            <div id="sellable-quantities" class="table-wrap"><div class="table-empty">读取账户持仓后填写每个代码的可卖数量。</div></div>
+            <div class="checks">
+              <div class="check"><input id="positions-complete" type="checkbox"><label for="positions-complete">我已核对完整持仓<small>包含无成交、冻结和无法卖出的部分。</small></label></div>
+              <div class="check"><input id="corporate-actions-checked" type="checkbox"><label for="corporate-actions-checked">我已核对成本及除权资料<small>分红、送转、拆并股等资料已核对，缺失时不启动。</small></label></div>
+            </div>
+            <div class="actions"><button id="start-button" class="button primary" type="submit" disabled>开始 30 秒观察</button><button id="stop-button" class="button danger" type="button" disabled>停止观察</button><button id="notify-button" class="button secondary" type="button">授权浏览器提醒</button></div>
+          </form>
+          <div id="form-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>正在读取账户状态…</span></div>
+        </section>
+
+        <section class="card">
+          <div class="card-heading"><div><h3>账户资料</h3><p class="helper">从持续计划更新资金与持仓，再回到这里重新确认。</p></div><a class="button secondary" href="/planner">打开持续计划</a></div>
+          <div id="account-summary" class="empty"><strong>等待账户资料</strong>后台尚未返回可用于观察的账户快照。</div>
+          <div class="section-title"><h4>市场状态</h4><span id="market-status-tag" class="tag off">—</span></div>
+          <div id="market-status" class="notice">等待行情轮询结果。</div>
+          <div class="section-title"><h4>最近检查</h4><span id="checked-at" class="helper">—</span></div>
+          <div id="latest-summary" class="empty">暂无盘中检查结果。</div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>条件与持仓</h3><p class="helper">价格与时间来自最近一次轮询；展示条件不等于成交确认。</p></div><span class="tag waiting">免费行情 · 30 秒</span></div>
+        <div class="section-title"><h4>入场条件</h4><span id="entry-count" class="helper">0 条</span></div>
+        <div id="entries-table" class="table-wrap"><div class="table-empty">暂无入场条件。</div></div>
+        <div class="section-title"><h4>持仓条件</h4><span id="holding-count" class="helper">0 条</span></div>
+        <div id="holdings-table" class="table-wrap"><div class="table-empty">暂无持仓条件。</div></div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>提醒</h3><p class="helper">仅对轮询后出现的新提醒尝试浏览器通知；首载历史不会弹出。</p></div><span id="alert-count" class="helper">0 条</span></div>
+        <ul id="alerts" class="alert-list"><li class="empty">暂无提醒。</li></ul>
+      </section>
+
+      <p class="footer">行情轮询可能延迟、缺失或受限于免费接口；页面不下单，不保证成交，止盈止损只是条件提醒。新闻字段沿用收盘证据，不代表实时新闻。</p>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+      const POLL_MS = 5000;
+      const INTERVAL_SECONDS = 30;
+      const state = { csrf: "", value: null, firstLoad: true, alertIds: new Set(), dirty: false, revision: null, needsReview: false, stopRequested: false, connectionUnknown: true, pollInFlight: false, pollTimer: null, notificationReady: false };
+      const $ = (id) => document.getElementById(id);
+      const text = (value, fallback = "—") => value === null || value === undefined || value === "" ? fallback : String(value);
+      const list = (value) => Array.isArray(value) ? value : [];
+      const escNumber = (value) => {
+        if (value === null || value === undefined || value === "") return "";
+        const number = Number(value);
+        return Number.isFinite(number) ? String(number) : "";
+      };
+      const fmt = (value, digits = 2) => {
+        if (value === null || value === undefined || value === "") return "—";
+        const number = Number(value);
+        return Number.isFinite(number) ? number.toLocaleString("zh-CN", { maximumFractionDigits: digits }) : String(value);
+      };
+      const when = (value) => {
+        if (!value) return "—";
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("zh-CN", { hour12: false });
+      };
+      const alertTime = (alert) => {
+        const value = alert && (alert.created_at || alert.observed_at);
+        const timestamp = value ? Date.parse(value) : NaN;
+        return Number.isFinite(timestamp) ? timestamp : null;
+      };
+      const alertMatchesCurrent = (alert, latest, value = state.value) => {
+        if (!alert || !latest) return false;
+        const confirmation = value && value.confirmation;
+        if (!alert.tick_id || !latest.id || String(alert.tick_id) !== String(latest.id)) return false;
+        if (!alert.confirmation_id || !confirmation || !confirmation.id || String(alert.confirmation_id) !== String(confirmation.id)) return false;
+        if ((alert.plan_version ?? null) !== (latest.plan_version ?? null)) return false;
+        const items = list(latest.entries).concat(list(latest.holdings)).filter((item) => String(item.ts_code || "") === String(alert.ts_code || ""));
+        if (!items.length) return false;
+        const alertQuantity = Number(alert.quantity);
+        return items.some((item) => Number.isInteger(alertQuantity) && Number.isInteger(Number(item.quantity)) && alertQuantity === Number(item.quantity) && item.trigger !== undefined && item.trigger !== null && String(item.trigger) === String(alert.kind || ""));
+      };
+      const latestFresh = (latest) => {
+        if (!latest) return false;
+        const now = Date.now();
+        const checked = latest.checked_at ? Date.parse(latest.checked_at) : NaN;
+        if (!Number.isFinite(checked) || checked > now || now - checked > 90 * 1000) return false;
+        if (latest.valid_until !== undefined && latest.valid_until !== null) {
+          const validUntil = Date.parse(latest.valid_until);
+          if (!Number.isFinite(validUntil) || now > validUntil) return false;
+        }
+        return true;
+      };
+      const staleLatest = (latest) => {
+        if (!latest || latestFresh(latest)) return latest;
+        const staleItem = (item) => ({ ...item, status: "stale", quantity: 0, available_quantity: 0, reasons: list(item.reasons).concat("检查已过期，数量置零") });
+        return { ...latest, status: "stale", entries: list(latest.entries).map(staleItem), holdings: list(latest.holdings).map(staleItem), reasons: list(latest.reasons).concat("检查已过期，数量置零") };
+      };
+      const currentAlert = (alert, value = state.value) => {
+        const timestamp = alertTime(alert);
+        const latest = value && value.latest;
+        const age = timestamp === null ? Infinity : Date.now() - timestamp;
+        return Boolean(value && value.running && !value.stopping && !state.stopRequested && latest && latest.status === "monitoring" && latestFresh(latest) && alertMatchesCurrent(alert, latest, value) && timestamp !== null && age >= 0 && age <= 90 * 1000);
+      };
+      const setMessage = (message, kind = "") => {
+        const node = $("message");
+        node.textContent = message || "";
+        node.className = message ? `notice ${kind}` : "notice hidden";
+      };
+      const setFormStatus = (message, kind = "") => {
+        const dot = $("form-status").querySelector(".status-dot");
+        dot.className = `status-dot ${kind}`;
+        $("form-status").querySelector("span:last-child").textContent = message;
+      };
+      const tag = (node, value, kind = "off") => { node.textContent = text(value); node.className = `tag ${kind}`; };
+      const makeCell = (value) => { const cell = document.createElement("td"); cell.textContent = text(value); return cell; };
+      const makeRow = (values) => { const row = document.createElement("tr"); values.forEach((value) => row.appendChild(makeCell(value))); return row; };
+      const makeTable = (columns, rows, empty) => {
+        const wrap = document.createElement("div");
+        if (!rows.length) { const node = document.createElement("div"); node.className = "table-empty"; node.textContent = empty; wrap.appendChild(node); return wrap; }
+        const table = document.createElement("table");
+        const head = document.createElement("thead");
+        const headRow = document.createElement("tr");
+        columns.forEach((column) => { const cell = document.createElement("th"); cell.textContent = column; headRow.appendChild(cell); });
+        head.appendChild(headRow); table.appendChild(head);
+        const body = document.createElement("tbody"); rows.forEach((row) => body.appendChild(row)); table.appendChild(body); wrap.appendChild(table); return wrap;
+      };
+      const api = async (path, options = {}) => {
+        const response = await fetch(path, { cache: "no-store", ...options, headers: { Accept: "application/json", ...(options.headers || {}), ...(options.method ? { "Content-Type": "application/json", "X-CSRF-Token": state.csrf } : {}) } });
+        let body = null;
+        try { body = await response.json(); } catch (_) { body = {}; }
+        if (!response.ok) throw new Error(body && body.error ? body.error : `请求失败（${response.status}）`);
+        return body;
+      };
+      const currentPositions = () => state.value && state.value.account ? list(state.value.account.positions) : [];
+      const renderQuantities = (force = false, clearValues = false) => {
+        if (state.dirty && !force) return;
+        const rows = currentPositions();
+        const existing = clearValues ? new Map() : new Map(Array.from(document.querySelectorAll(".sellable-quantity")).map((input) => [input.dataset.tsCode, input.value]));
+        const table = document.createElement("table");
+        if (!rows.length) { const empty = document.createElement("div"); empty.className = "table-empty"; empty.textContent = "账户没有已返回的持仓；仍需勾选完整持仓并填写 0。"; $("sellable-quantities").replaceChildren(empty); $("position-hint").textContent = "无持仓记录"; return; }
+        const head = document.createElement("thead"); const headRow = document.createElement("tr"); ["代码", "名称", "持仓数量", "实际可卖数量"].forEach((value) => { const cell = document.createElement("th"); cell.textContent = value; headRow.appendChild(cell); }); head.appendChild(headRow); table.appendChild(head);
+        const body = document.createElement("tbody");
+        rows.forEach((position) => {
+          const row = document.createElement("tr"); row.appendChild(makeCell(position.ts_code)); row.appendChild(makeCell(position.name)); row.appendChild(makeCell(fmt(position.quantity, 0)));
+          const cell = document.createElement("td"); const input = document.createElement("input"); input.className = "input qty-input sellable-quantity"; input.type = "number"; input.min = "0"; input.step = "1"; input.inputMode = "numeric"; input.placeholder = "必填"; input.dataset.tsCode = text(position.ts_code, ""); input.value = existing.get(input.dataset.tsCode) || ""; cell.appendChild(input); row.appendChild(cell); body.appendChild(row);
+        });
+        table.appendChild(body); $("sellable-quantities").replaceChildren(table); $("position-hint").textContent = `${rows.length} 个代码，逐项填写实际可卖数量`;
+      };
+      const renderAccount = (account) => {
+        if (!account) { $("account-summary").textContent = "等待账户资料"; return; }
+        const profile = account.profile || {};
+        const box = document.createElement("div"); box.className = "data-grid";
+        [["账户总资产", profile.capital], ["可用现金", profile.cash], ["持仓数量", list(account.positions).length], ["账户版本", account.revision]].forEach(([label, value]) => { const cell = document.createElement("div"); cell.className = "data-cell"; const l = document.createElement("div"); l.className = "data-label"; l.textContent = label; const v = document.createElement("div"); v.className = "data-value"; v.textContent = value === null || value === undefined || value === "" ? "未填写" : text(value, "0"); cell.append(l, v); box.appendChild(cell); });
+        $("account-summary").replaceChildren(box);
+        $("revision-tag").textContent = `账户版本 ${text(account.revision)}`;
+      };
+      const renderLatest = (latest) => {
+        if (!latest) { $("latest-summary").textContent = "暂无盘中检查结果。"; $("checked-at").textContent = "—"; return; }
+        $("checked-at").textContent = when(latest.checked_at);
+        const box = document.createElement("div"); box.className = "data-grid";
+        [["状态", latest.status], ["计划版本", latest.plan_version], ["入场", list(latest.entries).length], ["持仓", list(latest.holdings).length], ["原因", list(latest.reasons).length], ["行情凭证", list(latest.quote_receipts).length]].forEach(([label, value]) => { const cell = document.createElement("div"); cell.className = "data-cell"; const l = document.createElement("div"); l.className = "data-label"; l.textContent = label; const v = document.createElement("div"); v.className = "data-value"; v.textContent = text(value, "0"); cell.append(l, v); box.appendChild(cell); });
+        $("latest-summary").replaceChildren(box);
+      };
+      const conditionRows = (items) => list(items).map((item) => makeRow([item.ts_code, item.name, item.price === undefined ? "—" : fmt(item.price), when(item.observed_at), item.status, fmt(item.quantity, 0), item.entry_low === undefined ? "—" : fmt(item.entry_low), item.entry_high === undefined ? "—" : fmt(item.entry_high), item.stop_price === undefined ? "—" : fmt(item.stop_price), item.take_profit_price === undefined ? "—" : fmt(item.take_profit_price), list(item.reasons).join("；") || "—", item.trigger || "—", item.available_quantity === undefined ? "—" : fmt(item.available_quantity, 0)]));
+      const renderConditions = (latest) => {
+        const entries = latest ? list(latest.entries) : []; const holdings = latest ? list(latest.holdings) : [];
+        $("entry-count").textContent = `${entries.length} 条`; $("holding-count").textContent = `${holdings.length} 条`;
+        const columns = ["代码", "名称", "价格", "观察时间", "状态", "数量", "入场低", "入场高", "止损", "止盈", "原因", "触发", "可卖数量"];
+        $("entries-table").replaceChildren(makeTable(columns, conditionRows(entries), "暂无入场条件。")); $("holdings-table").replaceChildren(makeTable(columns, conditionRows(holdings), "暂无持仓条件。"));
+      };
+      const renderAlerts = (alerts) => {
+        const values = list(alerts); $("alert-count").textContent = `${values.length} 条`;
+        const listNode = $("alerts"); listNode.replaceChildren();
+        if (!values.length) { const empty = document.createElement("li"); empty.className = "empty"; empty.textContent = "暂无提醒。"; listNode.appendChild(empty); return; }
+        values.forEach((alert) => { const item = document.createElement("li"); item.className = "alert-item"; const title = document.createElement("strong"); title.textContent = `${text(alert.ts_code)} · ${text(alert.kind)}`; const message = document.createElement("div"); const label = currentAlert(alert) ? "当前条件" : "历史条件（非当前执行数量）"; message.textContent = `${label}：${text(alert.message)}；价格 ${fmt(alert.price)}；数量 ${fmt(alert.quantity, 0)}；${when(alert.created_at)}`; item.append(title, message); listNode.appendChild(item); });
+      };
+      const notifyNewAlerts = (alerts) => {
+        const values = list(alerts); if (state.firstLoad) { values.forEach((alert) => state.alertIds.add(text(alert.id))); return; }
+        values.forEach((alert) => { const id = text(alert.id); if (state.alertIds.has(id)) return; state.alertIds.add(id); if (currentAlert(alert) && state.notificationReady && "Notification" in window && Notification.permission === "granted") new Notification(`盘中提醒 · ${text(alert.ts_code)}`, { body: text(alert.message) }); });
+      };
+      const render = (value) => {
+        state.value = value; state.connectionUnknown = false; if (value && value.csrf) state.csrf = value.csrf;
+        const apiValid = Boolean(value && value.intraday_api_version === 1);
+        const running = Boolean(value && value.running); if (!running) state.stopRequested = false;
+        const stopping = running && Boolean(value && value.stopping) || running && state.stopRequested;
+        $("running-pill").textContent = stopping ? "停止中" : running ? "观察运行中" : "未启动"; $("running-pill").className = `status-pill ${stopping ? "error" : running ? "" : "off"}`;
+        tag($("market-status-tag"), value && value.market_status ? value.market_status.label || value.market_status.status || value.market_status : "—", running ? "running" : "off"); $("market-status").textContent = value && value.market_status && value.market_status.message ? value.market_status.message : text(value && value.market_status, "等待行情状态");
+        const revision = value && value.account ? value.account.revision : null;
+        const revisionChanged = state.revision !== null && revision !== null && revision !== state.revision;
+        if (revisionChanged) { state.needsReview = true; $("positions-complete").checked = false; $("corporate-actions-checked").checked = false; setMessage("账户版本已变化，请停止观察、重新核对资料并再次勾选确认。", "warning"); }
+        state.revision = revision;
+        renderAccount(value ? value.account : null); const displayLatest = staleLatest(value ? value.latest : null); renderLatest(displayLatest); renderConditions(displayLatest); renderAlerts(value ? value.alerts : []); renderQuantities(revisionChanged, revisionChanged);
+        $("stop-button").disabled = !running || state.connectionUnknown; $("start-button").disabled = running || !apiValid || state.connectionUnknown;
+        if (value && value.last_error) setMessage(String(value.last_error), "error");
+        if (!apiValid) setMessage("盘中接口版本无效，暂不能安全启动。", "error");
+        if (stopping) setFormStatus("停止请求已提交，等待 GET 确认 running=false；当前数量已立即失效。", "error"); else if (value && value.running) setFormStatus("后台观察运行中；页面关闭后服务仍会继续检查。", "running"); else if (!state.needsReview) setFormStatus("未启动。填写资料并完成两项确认后开始。", "");
+        notifyNewAlerts(value ? value.alerts : []); state.firstLoad = false;
+      };
+      const load = async () => {
+        if (state.pollInFlight) return;
+        state.pollInFlight = true;
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 10000);
+        try {
+          const value = await api("/api/intraday/state", { signal: controller.signal });
+          render(value);
+        } catch (error) {
+          if (state.value) { state.value.latest = null; state.value.alerts = []; }
+          state.connectionUnknown = true;
+          renderLatest(null); renderConditions(null); renderAlerts([]);
+          $("start-button").disabled = true; $("running-pill").textContent = "连接未知"; $("running-pill").className = "status-pill error"; $("market-status-tag").textContent = "连接未知"; $("market-status-tag").className = "tag error"; $("market-status").textContent = "连接未知；未确认后台是否停止。";
+          setMessage("盘中状态连接未知，未确认后台是否停止；恢复连接后才能开始或继续操作。", "error"); setFormStatus(error.name === "AbortError" ? "状态请求超时，连接未知。" : "状态请求失败，连接未知。", "error");
+        } finally {
+          window.clearTimeout(timeout); state.pollInFlight = false;
+        }
+      };
+      const collect = () => {
+        const quantities = {}; document.querySelectorAll(".sellable-quantity").forEach((input) => { if (input.value.trim() !== "") quantities[input.dataset.tsCode] = Number(input.value); });
+        const frozen = $("frozen-cash").value.trim(); const other = $("other-assets").value.trim();
+        if (!Number.isInteger(Number(state.revision)) || Number(state.revision) < 0) throw new Error("账户 revision 尚未读取，无法安全启动。");
+        if (frozen === "" || other === "") throw new Error("冻结现金和其他资产都必须明确填写；无其他资产请填 0。");
+        if (!Number.isFinite(Number(frozen)) || Number(frozen) < 0 || !Number.isFinite(Number(other)) || Number(other) < 0) throw new Error("资金字段必须是非负数字。");
+        const heldPositions = currentPositions(); if (heldPositions.some((position) => quantities[position.ts_code] === undefined || !Number.isInteger(quantities[position.ts_code]) || quantities[position.ts_code] < 0 || quantities[position.ts_code] > Number(position.quantity || 0))) throw new Error("实际可卖数量必须是非负整数，且不能超过已确认持仓数量。");
+        if (!$("positions-complete").checked || !$("corporate-actions-checked").checked) throw new Error("请先完成持仓完整性、成本及除权资料两项确认。");
+        return { expected_account_revision: Number(state.revision), positions_complete: true, corporate_actions_checked: true, frozen_cash: frozen, other_assets: other, sellable_quantities: quantities };
+      };
+      $("start-form").addEventListener("submit", async (event) => { event.preventDefault(); try { const payload = collect(); $("start-button").disabled = true; setFormStatus("正在启动后台观察…", "running"); const result = await api("/api/intraday/start", { method:"POST", body:JSON.stringify(payload) }); state.needsReview = false; state.dirty = false; setMessage(result.message || "盘中观察已启动。", "success"); await load(); } catch (error) { setMessage(error.message, "error"); setFormStatus("启动未完成。", "error"); $("start-button").disabled = false; } });
+      $("stop-button").addEventListener("click", async () => { try { $("stop-button").disabled = true; const result = await api("/api/intraday/stop", { method:"POST", body:"{}" }); state.stopRequested = result && result.running !== false; state.needsReview = true; $("positions-complete").checked = false; $("corporate-actions-checked").checked = false; if (state.stopRequested || result.stopping === true) setMessage("停止请求已提交；后台仍在收尾，GET 返回 running=false 后才算停止。当前数量已立即失效。", "warning"); else setMessage("观察已停止；再次启动前请重新核对并勾选确认。", "success"); await load(); } catch (error) { setMessage(error.message, "error"); $("stop-button").disabled = false; } });
+      $("notify-button").addEventListener("click", async () => { if (!("Notification" in window)) { setMessage("当前浏览器不支持通知。", "warning"); return; } const permission = await Notification.requestPermission(); state.notificationReady = permission === "granted"; setMessage(state.notificationReady ? "浏览器提醒已授权；页面保持打开时，新 alert 可在后台标签页提示。" : "浏览器提醒未授权。", state.notificationReady ? "success" : "warning"); });
+      ["frozen-cash", "other-assets", "positions-complete", "corporate-actions-checked"].forEach((id) => $(id).addEventListener("input", () => { state.dirty = true; }));
+      $("sellable-quantities").addEventListener("input", () => { state.dirty = true; });
+      load(); state.pollTimer = window.setInterval(load, POLL_MS);
+      window.setInterval(() => {
+        const latest = state.value && state.value.latest;
+        if (latest && latest.status !== "stale" && !latestFresh(latest)) {
+          state.value.latest = staleLatest(latest);
+          renderLatest(state.value.latest); renderConditions(state.value.latest); renderAlerts(state.value.alerts);
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>

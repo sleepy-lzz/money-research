@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>持续计划 · A股研究工作台</title>
+  <style>
+    :root {
+      --navy: #112846;
+      --navy-soft: #1d3b60;
+      --teal: #0b8f89;
+      --teal-dark: #08736f;
+      --ink: #17263a;
+      --muted: #66778b;
+      --line: #dce5ec;
+      --paper: #fff;
+      --soft: #f5f8fa;
+      --success: #176b51;
+      --success-bg: #eaf7f1;
+      --warning: #8d590d;
+      --warning-bg: #fff8e8;
+      --danger: #a62e42;
+      --danger-bg: #fff1f3;
+      --shadow: 0 16px 44px rgba(17, 40, 70, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #f7fafc;
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; opacity: .55; }
+    .shell { min-height: 100vh; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 22px;
+      padding: 17px clamp(18px, 5vw, 72px);
+      color: #edf5fb;
+      background: var(--navy);
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 31px; height: 5px; border-radius: 4px; background: var(--teal); }
+    .brand h1 { margin: 0; color: #fff; font-size: 18px; }
+    .brand p { margin: 2px 0 0; color: #a9bed4; font-size: 12px; }
+    .top-links { display: flex; align-items: center; gap: 12px; }
+    .top-links a { color: #c4d9eb; text-decoration: none; }
+    .top-links a:hover { color: #fff; }
+    .top-badge { padding: 6px 11px; border: 1px solid rgba(159, 222, 216, .3); border-radius: 99px; color: #b7e0dc; font-size: 12px; }
+    main { width: min(1320px, calc(100% - 40px)); margin: 0 auto; padding: 36px 0 58px; }
+    .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 25px; }
+    .eyebrow { margin: 0 0 6px; color: var(--teal-dark); font-size: 12px; font-weight: 700; letter-spacing: .11em; }
+    h2 { margin: 0; color: var(--navy); font-size: clamp(25px, 4vw, 37px); line-height: 1.2; }
+    .hero p { max-width: 720px; margin: 9px 0 0; color: var(--muted); }
+    .hero-note { max-width: 260px; padding: 11px 13px; border-left: 3px solid var(--teal); color: #446077; background: #eff8f7; font-size: 12px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr); gap: 18px; align-items: start; }
+    .card { padding: 23px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); }
+    .card + .card { margin-top: 18px; }
+    .card h3 { margin: 0; color: var(--navy); font-size: 18px; }
+    .card h4 { margin: 0; color: var(--navy); font-size: 15px; }
+    .quick-start { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:18px; }
+    .quick-step { padding:13px 14px; border:1px solid #cfe2e5; border-radius:8px; background:#f2fbfa; }
+    .quick-step b { display:block; margin-bottom:3px; color:var(--teal-dark); font-size:12px; }
+    .quick-step span { color:#40566b; font-size:12px; }
+    .card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .helper { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .form-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+    .field { grid-column: span 4; min-width: 0; }
+    .field.wide { grid-column: span 6; }
+    .field.full { grid-column: 1 / -1; }
+    label { display: block; margin-bottom: 5px; color: #354b63; font-size: 12px; font-weight: 700; }
+    .input {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid #cbd8e2;
+      border-radius: 7px;
+      outline: 0;
+      color: var(--ink);
+      background: #fff;
+    }
+    textarea.input { min-height: 92px; resize: vertical; }
+    .input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(11, 143, 137, .12); }
+    .field-note { margin-top: 4px; color: #7b8b9b; font-size: 11px; }
+    .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 19px; }
+    .button { min-height: 39px; padding: 7px 14px; border: 1px solid transparent; border-radius: 7px; font-weight: 700; }
+    .primary { color: #fff; background: var(--teal); }
+    .primary:hover { background: var(--teal-dark); }
+    .secondary { color: var(--navy); background: #fff; border-color: #bfd0dc; }
+    .secondary:hover { color: var(--teal-dark); border-color: var(--teal); }
+    .danger { color: var(--danger); background: var(--danger-bg); border-color: #ecc1ca; }
+    .danger:hover { background: #ffe5e9; }
+    .status-line { display: flex; align-items: center; gap: 8px; min-height: 23px; margin-top: 13px; color: var(--muted); font-size: 13px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a5b6; }
+    .status-dot.running { background: var(--teal); box-shadow: 0 0 0 4px rgba(11, 143, 137, .13); }
+    .status-dot.success { background: var(--success); }
+    .status-dot.warning { background: #cc8316; }
+    .status-dot.error { background: var(--danger); }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .tag.complete { color: var(--success); background: var(--success-bg); }
+    .tag.partial { color: var(--warning); background: var(--warning-bg); }
+    .tag.blocked, .tag.failed { color: var(--danger); background: var(--danger-bg); }
+    .tag.running { color: var(--teal-dark); background: #e9f8f7; }
+    .tag.cancelled { color: #53667a; background: #edf1f4; }
+    .notice { padding: 11px 13px; border: 1px solid #cbe2e0; border-radius: 8px; color: #285e5c; background: #f2fbfa; }
+    .notice.warning { border-color: #efdaa0; color: #80510c; background: var(--warning-bg); }
+    .notice.error { border-color: #edc2cb; color: #852a3a; background: var(--danger-bg); }
+    .notice.success { border-color: #b9ddce; color: var(--success); background: var(--success-bg); }
+    .notice + .notice { margin-top: 9px; }
+    .account-check { margin-top: 16px; }
+    .account-check-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .account-check-grid .data-cell { min-height: 68px; }
+    .hidden { display: none !important; }
+    .data-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .data-cell { min-height: 78px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdfe; }
+    .data-label { color: var(--muted); font-size: 11px; }
+    .data-value { margin-top: 5px; color: var(--navy); font-size: 17px; font-weight: 700; word-break: break-word; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th, td { padding: 10px 11px; border-bottom: 1px solid #e7edf1; text-align: left; }
+    th { color: #52657a; background: #f6f9fb; font-size: 11px; }
+    td { color: #2a3d50; font-size: 12px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .table-empty { padding: 24px; color: var(--muted); text-align: center; }
+    .table-action { min-height: 28px; padding: 3px 8px; border: 1px solid #bfd0dc; border-radius: 5px; color: var(--navy); background: #fff; font-size: 11px; }
+    .table-action:hover { border-color: var(--teal); color: var(--teal-dark); }
+    .table-action.clear { margin-left: 5px; color: var(--danger); border-color: #ecc1ca; }
+    .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 26px 0 12px; }
+    .section-title:first-child { margin-top: 0; }
+    .list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .list li { padding: 10px 12px; border: 1px solid #e3ebf0; border-radius: 7px; color: #52677b; background: #fcfdfe; }
+    .list strong { color: var(--navy); }
+    details { border: 1px solid var(--line); border-radius: 8px; background: #fbfdfe; }
+    details summary { padding: 10px 12px; color: var(--navy); cursor: pointer; font-weight: 700; }
+    pre { max-height: 230px; overflow: auto; margin: 0; padding: 12px; border-top: 1px solid var(--line); color: #52677b; background: #f8fafc; font: 12px/1.55 Consolas, "Microsoft YaHei", monospace; white-space: pre-wrap; word-break: break-word; }
+    .empty { padding: 28px 16px; border: 1px dashed #cbd8e2; border-radius: 8px; color: var(--muted); text-align: center; }
+    .empty strong { display: block; margin-bottom: 4px; color: var(--navy); }
+    .footer { margin-top: 28px; color: #8190a0; font-size: 12px; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .field { grid-column: span 6; }
+    }
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; flex-direction: column; gap: 12px; padding: 15px 18px; }
+      .top-links { width: 100%; justify-content: space-between; }
+      main { width: min(100% - 24px, 1320px); padding-top: 25px; }
+      .hero { display: block; }
+      .hero-note { max-width: none; margin-top: 15px; }
+      .card { padding: 17px; }
+      .field, .field.wide { grid-column: 1 / -1; }
+      .quick-start { grid-template-columns:1fr; gap:7px; }
+      .data-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .account-check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div><h1>A股研究工作台</h1><p>持续计划 · 人工执行</p></div>
+      </div>
+      <div class="top-links">
+        <span class="top-badge">每日更新闭环</span>
+        <a href="/paper">模拟账户</a>
+        <a href="/intraday">盘中监控</a>
+        <a href="/">返回当前研究</a>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">PLANNED RESEARCH</p>
+          <h2>持续计划</h2>
+          <p>把复核结果、已有持仓和人工证据放到同一条可追溯的研究链路里，供下一次更新继续审阅。</p>
+        </div>
+        <div class="hero-note">日频收盘复核，次日人工执行。止损价格不保证成交；没有资金时不会伪造建议数量。</div>
+      </section>
+
+      <div id="global-message" class="notice hidden" role="status"></div>
+
+      <div class="layout">
+        <section class="card">
+          <div class="quick-start" aria-label="持续计划三步">
+            <div class="quick-step"><b>01 · 填账户</b><span>总资金、现金和全部持仓</span></div>
+            <div class="quick-step"><b>02 · 对收盘</b><span>提交同日收盘快照并通过核对</span></div>
+            <div class="quick-step"><b>03 · 看计划</b><span>复核入场、股数、止损和退出条件</span></div>
+          </div>
+          <div class="card-heading">
+            <div><h3>风险与资金参数</h3><p class="helper">参数用于下一次复核实验，权重本身没有收益证明。</p></div>
+            <span id="profile-tag" class="tag running">读取中</span>
+          </div>
+          <form id="profile-form">
+            <div class="form-grid">
+              <div class="field wide">
+                <label for="capital">总资金（元）</label>
+                <input id="capital" class="input" type="number" min="0" step="0.01" placeholder="留空表示未知">
+                <div class="field-note">留空时不计算建议数量。</div>
+              </div>
+              <div class="field wide">
+                <label for="cash">可用现金（元）</label>
+                <input id="cash" class="input" type="number" min="0" step="0.01" placeholder="留空表示未知">
+              </div>
+              <div class="field">
+                <label for="risk-pct">单笔风险（%）</label>
+                <input id="risk-pct" class="input" type="number" min="0" step="0.01" value="0.5">
+              </div>
+              <div class="field">
+                <label for="max-position-pct">单票上限（%）</label>
+                <input id="max-position-pct" class="input" type="number" min="0" step="0.1" value="10">
+              </div>
+              <div class="field">
+                <label for="max-gross-pct">总仓位上限（%）</label>
+                <input id="max-gross-pct" class="input" type="number" min="0" step="0.1" value="60">
+              </div>
+              <div class="field">
+                <label for="portfolio-risk-pct">组合风险（%）</label>
+                <input id="portfolio-risk-pct" class="input" type="number" min="0" step="0.1" value="2">
+              </div>
+              <div class="field">
+                <label for="stop-pct">止损（%）</label>
+                <input id="stop-pct" class="input" type="number" min="0" step="0.1" value="6">
+              </div>
+              <div class="field">
+                <label for="reward-r">盈亏比 R</label>
+                <input id="reward-r" class="input" type="number" min="0" step="0.1" value="2">
+              </div>
+              <div class="field">
+                <label for="max-hold-sessions">最长交易日</label>
+                <input id="max-hold-sessions" class="input" type="number" min="1" step="1" value="20">
+              </div>
+              <div class="field">
+                <label for="entry-band-pct">入场带宽（%）</label>
+                <input id="entry-band-pct" class="input" type="number" min="0" step="0.1" value="1">
+              </div>
+            </div>
+            <div class="section-title"><h4>复核权重（%）</h4><span class="helper">总和应为 100%</span></div>
+            <div class="form-grid">
+              <div class="field"><label for="weight-mechanical">机械信号</label><input id="weight-mechanical" class="input weight" type="number" min="0" step="1" value="70"></div>
+              <div class="field"><label for="weight-market">市场状态</label><input id="weight-market" class="input weight" type="number" min="0" step="1" value="20"></div>
+              <div class="field"><label for="weight-news">新闻</label><input id="weight-news" class="input weight" type="number" min="0" step="1" value="10"></div>
+              <div class="field"><label for="weight-community">社区</label><input id="weight-community" class="input weight" type="number" min="0" step="1" value="0"></div>
+            </div>
+            <div class="actions"><button id="profile-submit" class="button primary" type="submit">保存参数</button></div>
+          </form>
+          <div id="profile-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>正在读取参数…</span></div>
+        </section>
+
+        <section class="card">
+          <div class="card-heading"><div><h3>每日闭环</h3><p class="helper">复核生成计划，人工确认后再执行。</p></div><span class="tag partial">研究参考</span></div>
+          <ol class="list">
+            <li><strong>01 · 更新</strong><br>读取最新真实选股、已有持仓与人工录入证据。</li>
+            <li><strong>02 · 复核</strong><br>检查行情、风险约束、新闻和社区证据的可用性。</li>
+            <li><strong>03 · 计划</strong><br>展示候选入场区间、止损、止盈和建议动作。</li>
+            <li><strong>04 · 执行</strong><br>由人工核对并下单，页面不连接券商、不自动下单。</li>
+          </ol>
+          <div class="notice warning" style="margin-top:16px">缺失新闻或社区证据不等于中性；手工证据的时间未经来源核实，只展示，不驱动决策。</div>
+          <div class="notice" style="margin-top:9px">权重只用于研究展示，尚未校准，不驱动建议数量；市场趋势和重大新闻属于独立风控提示，需要单独复核。</div>
+          <div class="notice" style="margin-top:9px">固定持有期不是收益保证。日频工具不监测盘中触价，停牌、涨跌停与跳空可能使实际亏损超过预算。</div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading">
+          <div><h3>收盘账户快照确认</h3><p class="helper">这是独立的人工确认，不会保存为风险参数。请在同日收盘后填写北京时间、冻结资金和其他资产。</p></div>
+          <span id="account-check-tag" class="tag partial">未确认</span>
+        </div>
+        <div id="account-check-notices"></div>
+        <form id="account-confirmation-form" style="margin-top:16px">
+          <div class="form-grid">
+            <div class="field wide">
+              <label for="account-as-of">收盘快照时间（北京时间）</label>
+              <input id="account-as-of" class="input" type="datetime-local" step="60" required>
+              <div class="field-note">填写同日收盘后的人工核对时间，提交时按 +08:00 发送。</div>
+            </div>
+            <div class="field wide">
+              <label for="account-frozen-cash">冻结资金（元）</label>
+              <input id="account-frozen-cash" class="input" type="number" min="0" step="0.01" placeholder="例如 100000.00" required>
+              <div class="field-note">仅填写冻结资金，不含上方可用现金，避免重复计入。</div>
+            </div>
+            <div class="field wide">
+              <label for="account-other-assets">其他资产（元）</label>
+              <input id="account-other-assets" class="input" type="number" min="0" step="0.01" value="0" required>
+              <div class="field-note">当前未建模；非零时必须填写说明，新仓数量仍保持 0。</div>
+            </div>
+            <div class="field wide">
+              <label for="account-other-assets-note">其他资产说明</label>
+              <textarea id="account-other-assets-note" class="input" placeholder="其他资产为 0 时可留空；非零时请说明来源或口径"></textarea>
+            </div>
+            <div class="field full">
+              <label id="positions-confirm-label" style="display:flex;align-items:flex-start;gap:8px;font-size:13px">
+                <input id="account-positions-complete" type="checkbox">
+                <span>我确认当前持仓记录完整，实际股数与页面一致。</span>
+              </label>
+              <div class="field-note">必须明确勾选后提交；页面不会默认替你确认。</div>
+            </div>
+          </div>
+          <div class="actions"><button id="account-confirmation-submit" class="button primary" type="submit" disabled>确认收盘账户快照</button></div>
+        </form>
+        <div id="account-confirmation-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>尚未确认。</span></div>
+        <div id="account-confirmation-detail" class="account-check hidden"></div>
+        <div class="notice" style="margin-top:12px">昨日收盘的账户确认在次日早间仍可作为账户资料；开始新的收盘复核时，仍需提交本次行情日的同日收盘快照。</div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>已有持仓</h3><p class="helper">这里只记录用户输入，更新与清零都不会下单。</p></div><span class="tag running">人工记录</span></div>
+        <form id="position-form">
+          <div class="form-grid">
+            <div class="field"><label for="position-code">股票代码</label><input id="position-code" class="input" type="text" placeholder="例如 000001.SZ" required></div>
+            <div class="field"><label for="position-quantity">数量</label><input id="position-quantity" class="input" type="number" min="0" step="1" placeholder="数量为 0 可清零" required></div>
+            <div class="field"><label for="position-cost">成本价</label><input id="position-cost" class="input" type="number" min="0" step="0.0001" placeholder="请输入成本价" required></div>
+            <div class="field"><label for="position-date">买入日期</label><input id="position-date" class="input" type="date" required></div>
+          </div>
+          <div class="actions"><button id="position-submit" class="button primary" type="submit">保存持仓</button><button id="position-reset" class="button secondary" type="button">清空输入</button></div>
+        </form>
+        <div id="position-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>暂无操作。</span></div>
+        <div id="positions-table" class="table-wrap" style="margin-top:16px"></div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>手工证据</h3><p class="helper">录入新闻或社区材料，供人工复核时查阅。</p></div><span class="tag partial">只展示</span></div>
+        <div class="notice warning">发布时间由人工填写，未经来源核实；缺失新闻或社区证据不等于中性，这些手工记录只展示，不直接驱动决策。</div>
+        <form id="evidence-form" style="margin-top:16px">
+          <div class="form-grid">
+            <div class="field"><label for="evidence-code">股票代码</label><input id="evidence-code" class="input" type="text" placeholder="例如 000001.SZ" required></div>
+            <div class="field"><label for="evidence-kind">证据类型</label><select id="evidence-kind" class="input"><option value="news">新闻</option><option value="community">社区</option></select></div>
+            <div class="field wide"><label for="evidence-url">来源 URL</label><input id="evidence-url" class="input" type="url" placeholder="可留空，手工材料仍需人工核验"></div>
+            <div class="field wide"><label for="evidence-published">发布时间</label><input id="evidence-published" class="input" type="datetime-local" required><div class="field-note">时间为人工录入，不代表供应方可见时间。</div></div>
+            <div class="field full"><label for="evidence-content">内容</label><textarea id="evidence-content" class="input" placeholder="粘贴或概述需要复核的材料" required></textarea></div>
+          </div>
+          <div class="actions"><button id="evidence-submit" class="button primary" type="submit">保存证据</button></div>
+        </form>
+        <div id="evidence-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>暂无操作。</span></div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>开始计划复核</h3><p class="helper">复核是后台任务，页面会持续读取进度；完成后自动刷新最新版本。</p></div><span id="review-tag" class="tag running">未运行</span></div>
+        <div class="actions"><button id="review-submit" class="button primary" type="button">开始复核</button><button id="review-cancel" class="button danger hidden" type="button">取消复核</button></div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:16px;color:#354b63;font-size:13px;font-weight:700"><input id="review-auto" type="checkbox"> 页面打开时每 30 分钟自动复核</label>
+        <div id="review-monitor-note" class="helper" style="margin-top:5px">当前未监测；页面关闭后不会在后台继续运行。</div>
+        <div id="review-status" class="status-line" aria-live="polite"><span class="status-dot"></span><span>尚未开始。</span></div>
+        <details id="review-log-wrap" class="hidden" style="margin-top:15px"><summary>查看复核进度</summary><pre id="review-log"></pre></details>
+      </section>
+
+      <section id="latest-section" class="card hidden" style="margin-top:18px">
+        <div id="latest-heading" class="card-heading"></div>
+        <div id="latest-notices"></div>
+        <div id="latest-account-check" class="notice account-check hidden"></div>
+        <div id="latest-stats" class="data-grid"></div>
+        <div class="split" style="margin-top:24px">
+          <div><div class="section-title"><h4>计划条目</h4></div><div id="entries-table" class="table-wrap"></div></div>
+          <div><div class="section-title"><h4>当前持仓动作</h4></div><div id="holdings-table" class="table-wrap"></div></div>
+        </div>
+        <div class="split" style="margin-top:18px">
+          <div><div class="section-title"><h4>国内外事件参考</h4></div><div id="market-context"></div></div>
+          <div><div class="section-title"><h4>财报参考</h4></div><div id="financial-context"></div></div>
+          <div><div class="section-title"><h4>证据摘要</h4></div><div id="latest-evidence"></div></div>
+          <div><div class="section-title"><h4>因素与变更</h4></div><div id="latest-factors"></div></div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-heading"><div><h3>计划版本历史</h3><p class="helper">每次复核都保留版本状态，便于回看参数和事实变化。</p></div></div>
+        <div id="history-table" class="table-wrap"></div>
+        <div id="history-detail" class="hidden" style="margin-top:15px"><details open><summary id="history-detail-title">完整版本结果</summary><pre id="history-detail-content"></pre></details></div>
+      </section>
+      <p class="footer">持续计划只帮助整理研究事实和人工动作。页面不保证收益、成交或固定持有期结果。</p>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+      const state = { csrf: null, profile: null, positions: [], latest: null, history: [], activeJob: null, reviewId: null, pollTimer: null, autoTimer: null, profileDirty: false, accountRevision: null, accountCheck: null, accountConfirmationDirty: false, accountSubmitting: false, accountConfirmationJustSaved: false };
+      const $ = (id) => document.getElementById(id);
+      const text = (value, fallback = "—") => value === null || value === undefined || value === "" ? fallback : String(value);
+      const fmt = (value, digits = 2) => value === null || value === undefined || value === "" || Number.isNaN(Number(value)) ? "—" : Number(value).toLocaleString("zh-CN", { maximumFractionDigits: digits });
+      const escDate = (value) => text(value, "未提供");
+      const statusNames = { complete: "已完成", completed: "已完成", partial: "部分完成", blocked: "已阻塞", running: "运行中", failed: "失败", cancelled: "已取消" };
+      const statusClass = (value) => value === "completed" ? "complete" : ["complete", "partial", "blocked", "running", "failed", "cancelled"].includes(value) ? value : "partial";
+      const statusName = (value) => statusNames[value] || text(value, "未知状态");
+      const accountStatusNames = { unconfirmed: "未确认", stale: "已过期", confirmed: "已确认", ready: "对账通过", blocked: "对账阻塞" };
+      const accountStatusName = (value) => accountStatusNames[value] || text(value, "未知状态");
+      const percentValue = (value) => value === null || value === undefined || value === "" || Number.isNaN(Number(value)) ? "未知" : `${fmt(Number(value) * 100)}%`;
+      const factorLabels = { mechanical: "机械信号", market: "市场趋势", news: "重大新闻", community: "社区" };
+      const kindLabels = { news: "新闻", community: "社区" };
+
+      function node(tag, className, value) {
+        const item = document.createElement(tag);
+        if (className) item.className = className;
+        if (value !== undefined && value !== null) item.textContent = String(value);
+        return item;
+      }
+      function clear(item) { while (item.firstChild) item.removeChild(item.firstChild); }
+      function show(item, visible) { item.classList.toggle("hidden", !visible); }
+      function safeHttpUrl(raw) {
+        if (!raw || typeof raw !== "string") return null;
+        try {
+          const url = new URL(raw, window.location.origin);
+          return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.href : null;
+        } catch (_) { return null; }
+      }
+      function activeJobId() { return typeof state.activeJob === "string" ? state.activeJob : state.activeJob && state.activeJob.id; }
+      function factorText(values) {
+        const source = values && typeof values === "object" ? values : {};
+        return Object.keys(factorLabels).map((key) => {
+          const raw = source[key];
+          const value = raw && typeof raw === "object" ? raw.value ?? raw.score ?? "已提供" : raw;
+          return `${factorLabels[key]}：${value === null || value === undefined || value === "" ? "未知" : value}`;
+        }).join(" · ");
+      }
+      function kindLabel(value) { return kindLabels[value] || "其他证据"; }
+      function setStatus(id, message, status = "") {
+        const item = $(id);
+        const dot = item.querySelector(".status-dot");
+        dot.className = `status-dot ${status === "completed" ? "success" : status === "running" ? "running" : ["failed", "blocked", "cancelled"].includes(status) ? "error" : status === "partial" ? "warning" : ""}`.trim();
+        item.querySelector("span:last-child").textContent = message;
+      }
+      function setTag(id, status) { const item = $(id); item.className = `tag ${statusClass(status)}`; item.textContent = statusName(status); }
+      function setAccountTag(status) {
+        const item = $("account-check-tag");
+        const kind = status === "confirmed" || status === "ready" ? "complete" : status === "stale" || status === "blocked" ? "blocked" : "partial";
+        item.className = `tag ${kind}`;
+        item.textContent = accountStatusName(status);
+      }
+      function notice(message, kind = "") { return node("div", `notice ${kind}`.trim(), message); }
+
+      async function request(path, options = {}) {
+        const config = { ...options, credentials: "same-origin", headers: { Accept: "application/json", ...(options.headers || {}) } };
+        if (config.body && typeof config.body !== "string") { config.body = JSON.stringify(config.body); config.headers["Content-Type"] = "application/json"; }
+        if ((config.method || "GET").toUpperCase() !== "GET") {
+          if (!state.csrf) throw new Error("页面尚未取得安全令牌，请稍后重试。");
+          config.headers["X-CSRF-Token"] = state.csrf;
+        }
+        let response;
+        try { response = await fetch(path, config); } catch (error) { throw new Error(`无法连接本地服务：${error.message || "请求失败"}`); }
+        let data = null;
+        try { data = await response.json(); } catch (_) { data = null; }
+        if (!response.ok) throw new Error(data && (data.error || data.message) ? String(data.error || data.message) : `请求失败（HTTP ${response.status}）`);
+        return data || {};
+      }
+
+      function showMessage(message, kind = "warning") {
+        const item = $("global-message");
+        item.className = `notice ${kind}`.trim();
+        item.textContent = message;
+        show(item, true);
+        window.setTimeout(() => show(item, false), 7000);
+      }
+      function percentInput(id, value, fallback) { $(id).value = value === null || value === undefined ? fallback : Number(value) * 100; }
+      function numeric(id, fallback = null) { const value = $(id).value.trim(); return value === "" ? fallback : Number(value); }
+      function validateNumber(value, label, min = 0) { if (value === null || !Number.isFinite(value) || value < min) throw new Error(`${label}请输入有效数字。`); return value; }
+      function moneyString(id, label) {
+        const value = $(id).value.trim();
+        if (value === "") throw new Error(`${label}请输入有效数字。`);
+        validateNumber(Number(value), label);
+        return value;
+      }
+      function beijingTime(value) {
+        if (!value) return "未提供";
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return `${String(value)}（北京时间）`;
+        return `${new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(parsed)}（北京时间）`;
+      }
+      function beijingInput(value) {
+        if (!value) return "";
+        const raw = String(value);
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(raw)) return raw.slice(0, 16);
+        return "";
+      }
+
+      function fillProfile(profile = {}) {
+        $("capital").value = profile.capital === null || profile.capital === undefined ? "" : profile.capital;
+        $("cash").value = profile.cash === null || profile.cash === undefined ? "" : profile.cash;
+        percentInput("risk-pct", profile.risk_pct, .5);
+        percentInput("max-position-pct", profile.max_position_pct, 10);
+        percentInput("max-gross-pct", profile.max_gross_pct, 60);
+        percentInput("portfolio-risk-pct", profile.portfolio_risk_pct, 2);
+        percentInput("stop-pct", profile.stop_pct, 6);
+        $("reward-r").value = profile.reward_r === null || profile.reward_r === undefined ? 2 : profile.reward_r;
+        $("max-hold-sessions").value = profile.max_hold_sessions === null || profile.max_hold_sessions === undefined ? 20 : profile.max_hold_sessions;
+        percentInput("entry-band-pct", profile.entry_band_pct, 1);
+        const weights = profile.weights || {};
+        percentInput("weight-mechanical", weights.mechanical, 70);
+        percentInput("weight-market", weights.market, 20);
+        percentInput("weight-news", weights.news, 10);
+        percentInput("weight-community", weights.community, 0);
+      }
+
+      function profilePayload() {
+        const capital = numeric("capital");
+        const cash = numeric("cash");
+        const fields = [
+          ["risk-pct", "单笔风险"], ["max-position-pct", "单票上限"], ["max-gross-pct", "总仓位上限"], ["portfolio-risk-pct", "组合风险"], ["stop-pct", "止损"], ["entry-band-pct", "入场带宽"]
+        ];
+        fields.forEach(([id, label]) => validateNumber(numeric(id), label));
+        const reward = validateNumber(numeric("reward-r"), "盈亏比");
+        const hold = validateNumber(numeric("max-hold-sessions"), "最长交易日", 1);
+        if (!Number.isInteger(hold)) throw new Error("最长交易日必须是整数。");
+        const weightIds = ["weight-mechanical", "weight-market", "weight-news", "weight-community"];
+        const weights = weightIds.map((id) => validateNumber(numeric(id), "权重"));
+        if (Math.abs(weights.reduce((sum, value) => sum + value, 0) - 100) > .01) throw new Error("四项权重总和必须为 100%。");
+        return {
+          capital: capital === null ? null : validateNumber(capital, "总资金"),
+          cash: cash === null ? null : validateNumber(cash, "可用现金"),
+          risk_pct: numeric("risk-pct") / 100,
+          max_position_pct: numeric("max-position-pct") / 100,
+          max_gross_pct: numeric("max-gross-pct") / 100,
+          portfolio_risk_pct: numeric("portfolio-risk-pct") / 100,
+          stop_pct: numeric("stop-pct") / 100,
+          reward_r: reward,
+          max_hold_sessions: hold,
+          entry_band_pct: numeric("entry-band-pct") / 100,
+          weights: { mechanical: weights[0] / 100, market: weights[1] / 100, news: weights[2] / 100, community: weights[3] / 100 }
+        };
+      }
+
+      async function saveProfile(event) {
+        event.preventDefault();
+        try {
+          const payload = profilePayload();
+          await request("/api/planner/profile", { method: "POST", body: payload });
+          setStatus("profile-status", "参数已保存，将用于下一次复核。", "completed");
+          setTag("profile-tag", "complete");
+          state.profileDirty = false;
+          await loadState(true);
+        } catch (error) { setStatus("profile-status", error.message || "参数保存失败。", "failed"); setTag("profile-tag", "failed"); }
+      }
+
+      function accountConfirmationPayload() {
+        const asOf = $("account-as-of").value.trim();
+        if (!asOf) throw new Error("请填写同日收盘后的北京时间。");
+        if (state.accountRevision === null || state.accountRevision === undefined) throw new Error("尚未取得账户修订号，请刷新页面后重试。");
+        const frozenCash = moneyString("account-frozen-cash", "冻结资金");
+        const otherAssets = moneyString("account-other-assets", "其他资产");
+        const otherAssetsNote = $("account-other-assets-note").value.trim();
+        if (Number(otherAssets) > 0 && !otherAssetsNote) throw new Error("其他资产非零时必须填写说明。");
+        if (!$("account-positions-complete").checked) throw new Error("请明确确认持仓记录完整；当前为空时也要确认无持仓。");
+        return {
+          as_of: `${asOf}+08:00`,
+          frozen_cash: frozenCash,
+          other_assets: otherAssets,
+          other_assets_note: otherAssetsNote,
+          positions_complete: true,
+          expected_account_revision: state.accountRevision,
+        };
+      }
+
+      function updateAccountConfirmationAvailability(force = false) {
+        const blocked = !state.backendReady || state.profileDirty || state.accountSubmitting || force || Boolean(state.reviewId || activeJobId());
+        $("account-confirmation-submit").disabled = blocked;
+      }
+
+      function fillAccountConfirmation(check = {}) {
+        if (state.accountConfirmationDirty) return;
+        const confirmation = check && check.confirmation;
+        $("account-as-of").value = beijingInput(confirmation && confirmation.as_of);
+        $("account-frozen-cash").value = confirmation && confirmation.frozen_cash !== undefined ? confirmation.frozen_cash : "";
+        $("account-other-assets").value = confirmation && confirmation.other_assets !== undefined ? confirmation.other_assets : "0";
+        $("account-other-assets-note").value = confirmation && confirmation.other_assets_note ? confirmation.other_assets_note : "";
+        $("account-positions-complete").checked = false;
+      }
+
+      function renderAccountConfirmation() {
+        const check = state.accountCheck || { status: "unconfirmed", reasons: [], confirmation: null };
+        const status = check.status || "unconfirmed";
+        setAccountTag(status);
+        fillAccountConfirmation(check);
+        $("positions-confirm-label").querySelector("span").textContent = state.positions.length
+          ? "我确认当前持仓记录完整，实际股数与页面一致。"
+          : "我确认当前记录为空，即确认没有需要记录的持仓。";
+        const notices = $("account-check-notices");
+        clear(notices);
+        if (status === "confirmed") notices.append(notice("本次人工账户快照已确认；如账户或持仓发生变化，需要重新确认。", "success"));
+        else if (status === "stale") notices.append(notice("账户快照已过期或账户修订号已变化，当前不能作为新的可执行确认。", "error"));
+        else notices.append(notice("尚未确认本次收盘账户快照。确认前不允许把账户口径视为新的可执行依据。", "warning"));
+        const reasons = Array.isArray(check.reasons) ? check.reasons : [];
+        reasons.forEach((reason) => notices.append(notice(reason, status === "confirmed" ? "warning" : "error")));
+        const detail = $("account-confirmation-detail");
+        clear(detail);
+        const confirmation = check.confirmation;
+        if (!confirmation) { show(detail, false); setStatus("account-confirmation-status", "尚未确认。", "partial"); return; }
+        show(detail, true);
+        detail.append(node("h4", "", "最近账户快照"));
+        const grid = node("div", "account-check-grid");
+        [["快照时间", beijingTime(confirmation.as_of)], ["记录时间", beijingTime(confirmation.recorded_at)], ["总资产", fmt(confirmation.total_assets)], ["可用现金", fmt(confirmation.available_cash)], ["冻结资金", fmt(confirmation.frozen_cash)], ["其他资产", fmt(confirmation.other_assets)], ["持仓条目", fmt(confirmation.positions_count, 0)], ["账户修订号", text(confirmation.account_revision)]].forEach(([label, value]) => { const cell = node("div", "data-cell"); cell.append(node("div", "data-label", label), node("div", "data-value", value)); grid.append(cell); });
+        detail.append(grid);
+        setStatus("account-confirmation-status", status === "confirmed" ? "账户快照已确认。再次提交前仍需重新勾选完整持仓。" : "已有快照，但当前需要重新确认。", status === "confirmed" ? "completed" : "failed");
+      }
+
+      async function saveAccountConfirmation(event) {
+        event.preventDefault();
+        if (!state.backendReady) return;
+        if (state.reviewId || activeJobId()) { showMessage("复核任务运行期间不能提交账户确认，请等待任务结束。", "warning"); return; }
+        if (state.profileDirty) { showMessage("账户参数有未保存修改，请先保存参数后再确认收盘账户。", "warning"); return; }
+        try {
+          const payload = accountConfirmationPayload();
+          state.accountSubmitting = true;
+          updateAccountConfirmationAvailability();
+          await request("/api/planner/account-confirmation", { method: "POST", body: payload });
+          state.accountConfirmationDirty = false;
+          state.accountConfirmationJustSaved = true;
+          $("account-positions-complete").checked = false;
+          setStatus("account-confirmation-status", "收盘账户快照已提交，正在刷新对账结果。", "completed");
+          await loadState();
+        } catch (error) { setStatus("account-confirmation-status", error.message || "账户快照提交失败。", "failed"); }
+        finally { state.accountSubmitting = false; state.accountConfirmationJustSaved = false; updateAccountConfirmationAvailability(); }
+      }
+
+      function renderPositions() {
+        const wrapper = $("positions-table");
+        clear(wrapper);
+        const rows = Array.isArray(state.positions) ? state.positions : [];
+        if (!rows.length) { wrapper.append(node("div", "table-empty", "尚未记录已有持仓。")); return; }
+        const table = document.createElement("table");
+        const head = document.createElement("tr");
+        ["代码", "数量", "成本价", "买入日期", "操作"].forEach((label) => head.append(node("th", "", label)));
+        const thead = document.createElement("thead"); thead.append(head); table.append(thead);
+        const body = document.createElement("tbody");
+        rows.forEach((row) => {
+          const tr = document.createElement("tr");
+          [text(row.ts_code), fmt(row.quantity, 0), fmt(row.cost_price, 4), escDate(row.buy_date)].forEach((value) => tr.append(node("td", "", value)));
+          const actions = node("td");
+          const edit = node("button", "table-action", "编辑"); edit.type = "button"; edit.addEventListener("click", () => fillPosition(row));
+          const clearButton = node("button", "table-action clear", "清零"); clearButton.type = "button"; clearButton.addEventListener("click", () => clearPosition(row));
+          actions.append(edit, clearButton); tr.append(actions); body.append(tr);
+        });
+        table.append(body); wrapper.append(table);
+      }
+      function fillPosition(row) { $("position-code").value = text(row.ts_code, ""); $("position-quantity").value = text(row.quantity, ""); $("position-cost").value = text(row.cost_price, ""); $("position-date").value = text(row.buy_date, ""); window.scrollTo({ top: $("position-form").offsetTop - 20, behavior: "smooth" }); }
+      async function savePosition(event) {
+        event.preventDefault();
+        try {
+          const payload = { ts_code: $("position-code").value.trim(), quantity: validateNumber(numeric("position-quantity"), "数量"), cost_price: validateNumber(numeric("position-cost"), "成本价"), buy_date: $("position-date").value };
+          if (!payload.ts_code || !payload.buy_date) throw new Error("代码和买入日期不能为空。");
+          await request("/api/planner/position", { method: "POST", body: payload });
+          setStatus("position-status", "持仓记录已保存，未执行任何交易。", "completed");
+          await loadState();
+        } catch (error) { setStatus("position-status", error.message || "持仓保存失败。", "failed"); }
+      }
+      async function clearPosition(row) {
+        try {
+          await request("/api/planner/position", { method: "POST", body: { ts_code: row.ts_code, quantity: 0, cost_price: row.cost_price || 0, buy_date: row.buy_date } });
+          setStatus("position-status", `${text(row.ts_code)} 已记录为数量 0。`, "completed");
+          await loadState();
+        } catch (error) { setStatus("position-status", error.message || "清零失败。", "failed"); }
+      }
+
+      async function saveEvidence(event) {
+        event.preventDefault();
+        const payload = { ts_code: $("evidence-code").value.trim(), kind: $("evidence-kind").value, url: $("evidence-url").value.trim(), published_at: $("evidence-published").value, content: $("evidence-content").value.trim() };
+        if (!payload.ts_code || !payload.published_at || !payload.content) { setStatus("evidence-status", "代码、发布时间和内容不能为空。", "failed"); return; }
+        if (payload.url) {
+          const safeUrl = safeHttpUrl(payload.url);
+          if (!safeUrl) { setStatus("evidence-status", "来源 URL 只能使用不含账号信息的 http(s) 地址。", "failed"); return; }
+          payload.url = safeUrl;
+        }
+        try {
+          await request("/api/planner/evidence", { method: "POST", body: payload });
+          setStatus("evidence-status", "证据已保存，只供展示和人工复核。", "completed");
+          $("evidence-form").reset();
+          await loadState();
+        } catch (error) { setStatus("evidence-status", error.message || "证据保存失败。", "failed"); }
+      }
+
+      function renderTable(wrapper, columns, rows, empty) {
+        clear(wrapper);
+        if (!rows.length) { wrapper.append(node("div", "table-empty", empty)); return; }
+        const table = document.createElement("table");
+        const trHead = document.createElement("tr"); columns.forEach(([label]) => trHead.append(node("th", "", label)));
+        const thead = document.createElement("thead"); thead.append(trHead); table.append(thead);
+        const body = document.createElement("tbody");
+        rows.forEach((row) => { const tr = document.createElement("tr"); columns.forEach(([, key, formatter]) => tr.append(node("td", "", formatter ? formatter(row[key]) : text(row[key])))); body.append(tr); });
+        table.append(body); wrapper.append(table);
+      }
+
+      function renderLatestAccountCheck(latest) {
+        const wrapper = $("latest-account-check");
+        clear(wrapper);
+        const check = latest && latest.account_check;
+        if (!check || typeof check !== "object") { show(wrapper, false); return; }
+        const ready = check.status === "ready" && check.new_positions_allowed === true;
+        wrapper.className = `notice account-check ${ready ? "success" : "error"}`;
+        show(wrapper, true);
+        wrapper.append(node("strong", "", `账户对账：${accountStatusName(check.status)} · 新仓${check.new_positions_allowed === true ? "允许" : "暂停"}`));
+        const reasons = Array.isArray(check.reasons) ? check.reasons : [];
+        reasons.forEach((reason) => wrapper.append(node("div", "helper", reason)));
+        const grid = node("div", "account-check-grid");
+        [["持仓市值", fmt(check.holdings_value)], ["计算总额", fmt(check.calculated_total)], ["对账差额", fmt(check.reconciliation_delta)], ["容差", text(check.tolerance, "1.00")]].forEach(([label, value]) => { const cell = node("div", "data-cell"); cell.append(node("div", "data-label", label), node("div", "data-value", value)); grid.append(cell); });
+        wrapper.append(grid);
+        const confirmation = check.confirmation;
+        if (confirmation) wrapper.append(node("div", "helper", `账户快照：${beijingTime(confirmation.as_of)} · 记录于 ${beijingTime(confirmation.recorded_at)} · 账户修订号 ${text(confirmation.account_revision)} · 持仓条目 ${fmt(confirmation.positions_count, 0)}`));
+      }
+
+      function renderFinancialContext(value) {
+        const panel = $("financial-context"); clear(panel);
+        if (!value || value.schema_version !== 1) { panel.append(notice("此计划尚无财务摘要；请在收盘后重新复核。", "warning")); return; }
+        panel.append(node("p", "helper", `${text(value.scope)}。${text(value.decision_mode)}。采集于 ${escDate(value.as_of)}`));
+        (value.warnings || []).forEach((warning) => panel.append(notice(warning, "warning")));
+        Object.entries(value.coverage || {}).forEach(([code, item]) => { if (item.status !== "sample_available") panel.append(notice(`${code}：${text(item.reason, "未取得报告")}；财务情况未知。`, "warning")); });
+        (value.evidence || []).forEach((row) => {
+          const details = node("details", "notice"); details.append(node("summary", "", `${text(row.ts_code)} ${text(row.name)} · ${text(row.report_period)} ${text(row.report_type)}`));
+          details.append(node("p", "helper", `东方财富财务摘要（未核原始公告） · ${text(row.org_type)} · ${text(row.basis)}`));
+          details.append(node("p", "helper", `来源公告日 ${text(row.source_announced_date)} · 修订日 ${text(row.source_updated_date)}（仅日期，时刻未知） · 实际获取 ${escDate(row.fetched_at)} · 可见 ${escDate(row.available_at)}`));
+          const list = node("ul", "list"); Object.entries(value.metric_definitions || {}).forEach(([key, metric]) => { const amount = (row.metrics || {})[key]; list.append(node("li", "", `${metric.label}：${amount === null || amount === undefined ? "未知" : fmt(amount, 2) + " " + metric.unit}`)); }); details.append(list);
+          const url = safeHttpUrl(row.url); if (url) { const link = node("a", "", "查看财务来源页面"); link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; details.append(link); }
+          panel.append(details);
+        });
+      }
+
+      function renderMarketContext(value) {
+        const panel = $("market-context"); clear(panel);
+        if (!value || value.schema_version !== 1) { panel.append(notice("此计划尚无国内外事件快照；请在收盘后重新复核。", "warning")); return; }
+        panel.append(node("p", "helper", `收盘复核采集于 ${escDate(value.as_of)}。${text(value.scope)}；${text(value.decision_mode)}。不是实时新闻。`));
+        const labels = {sample_available:"有样本",missing:"获取失败",invalid_time:"时间无效",no_recent_evidence:"无近期材料",unverified:"材料未通过校验"};
+        const sources = node("ul", "list");
+        Object.values(value.coverage || {}).forEach((item) => { const topic = (value.scenarios || {})[item.topic] || {}; sources.append(node("li", "", `${text(topic.label)} · ${item.source === "fed" ? "美联储官方 RSS" : "聚合检索"}：${labels[item.status] || "未知"}（${text(item.accepted, "0")}条；拒绝${text(item.rejected, "0")}条）`)); });
+        panel.append(sources);
+        (value.warnings || []).forEach((warning) => panel.append(notice(warning, "warning")));
+        const rows = Array.isArray(value.evidence) ? value.evidence : [];
+        if (!rows.length) panel.append(notice("暂无经过时间校验的近期事件；不能据此判断没有利好或利空。", "warning"));
+        rows.forEach((row) => {
+          const details = node("details", "notice");
+          details.append(node("summary", "", text(row.title)), node("p", "helper", `${text(row.source_label)} · ${text(row.verification)} · 影响方向：未判定`));
+          details.append(node("p", "helper", `发布 ${escDate(row.published_at)} · 实际获取 ${escDate(row.fetched_at)} · 可见 ${escDate(row.available_at)}`));
+          details.append(node("p", "", text(row.content)));
+          const url = safeHttpUrl(row.url);
+          if (url) { const link = node("a", "", "查看来源"); link.href = url; link.target = "_blank"; link.rel = "noopener noreferrer"; details.append(link); }
+          details.append(node("p", "helper", "以下为条件情景，尚未判定是否发生、是否超出预期或已被股价反映；也未映射到具体持仓。"));
+          (row.topics || []).forEach((key) => { const scenario = (value.scenarios || {})[key]; if (!scenario) return; details.append(node("strong", "", `${scenario.label} · 关注 ${scenario.channels}`), node("p", "", `可能利好：${scenario.positive}`), node("p", "", `可能利空：${scenario.negative}`)); });
+          panel.append(details);
+        });
+      }
+
+      function renderLatest() {
+        const latest = state.latest;
+        const section = $("latest-section");
+        if (!latest) { show(section, false); return; }
+        show(section, true);
+        clear($("latest-heading"));
+        const title = node("div"); title.append(node("h3", "", "最新计划"), node("p", "helper", `版本 ${text(latest.version_id)} · 日期 ${escDate(latest.as_of)} · 创建于 ${escDate(latest.created_at)}`));
+        $("latest-heading").append(title, node("span", `tag ${statusClass(latest.status)}`, statusName(latest.status)));
+        clear($("latest-notices"));
+        const warnings = Array.isArray(latest.warnings) ? latest.warnings : [];
+        if (latest.status === "blocked") $("latest-notices").append(notice("当前版本已阻塞，不能视为可执行计划。", "error"));
+        if (latest.status === "partial") $("latest-notices").append(notice("当前版本只完成部分复核，请结合缺失项人工判断。", "warning"));
+        $("latest-notices").append(notice("权重只用于研究展示，尚未校准，不驱动建议数量；市场趋势和重大新闻是独立风控提示。", "warning"));
+        warnings.forEach((warning) => $("latest-notices").append(notice(warning, "warning")));
+        renderLatestAccountCheck(latest);
+        renderMarketContext(latest.market_context);
+        renderFinancialContext(latest.financial_context);
+        const entries = Array.isArray(latest.entries) ? latest.entries : [];
+        const holdings = Array.isArray(latest.holdings) ? latest.holdings : [];
+        clear($("latest-stats"));
+        [["候选条目", entries.length], ["持仓动作", holdings.length], ["证据记录", Array.isArray(latest.evidence) ? latest.evidence.length : 0], ["版本状态", statusName(latest.status)]].forEach(([label, value]) => { const cell = node("div", "data-cell"); cell.append(node("div", "data-label", label), node("div", "data-value", value)); $("latest-stats").append(cell); });
+        renderTable($("entries-table"), [["代码", "ts_code"], ["名称", "name"], ["状态", "status", statusName], ["入场下限", "entry_low", fmt], ["入场上限", "entry_high", fmt], ["数量", "quantity", (value) => value === null || value === undefined ? "未计算" : fmt(value, 0)], ["风险等级", "risk_level", text], ["风险复核", "risk_review_required", (value) => value ? "需要人工复核" : "未触发预设观察"], ["可能涨跌停", "limit_state", text], ["评分下限", "score_low", percentValue], ["评分上限", "score_high", percentValue], ["最长持有交易日", "max_hold_sessions", (value) => fmt(value === null || value === undefined ? state.profile && state.profile.max_hold_sessions : value, 0)], ["止损", "stop_price", fmt], ["止盈", "take_profit_price", fmt], ["风险金额", "risk_amount", fmt], ["因素", "factor_values", factorText], ["原因", "reasons", (value) => Array.isArray(value) ? value.join("；") : text(value)]], entries, "暂无计划条目。");
+        renderTable($("holdings-table"), [["代码", "ts_code"], ["持仓股数", "quantity", (value) => fmt(value, 0)], ["拟退出股数", "sell_quantity", (value) => fmt(value, 0)], ["收盘", "close", fmt], ["止损", "stop_price", fmt], ["止盈", "take_profit_price", fmt], ["持有交易日", "held_sessions", fmt], ["动作", "action"], ["退出条件", "sell_condition", (value) => text(value, "下一交易日人工复核才退出（T+1）")], ["理由", "reason"]], holdings, "暂无持仓动作。");
+        const evidence = $("latest-evidence"); clear(evidence); const evidenceRows = Array.isArray(latest.evidence) ? latest.evidence : [];
+        const evidenceKinds = new Set(evidenceRows.map((row) => row.kind));
+        ["news", "community"].forEach((kind) => { if (!evidenceKinds.has(kind)) evidence.append(notice(`${kind === "news" ? "新闻" : "社区"}证据缺失；缺失不等于中性，即使权重为 0 也保留提示。`, "warning")); });
+        if (!evidenceRows.length) evidence.append(node("div", "empty", "暂无证据摘要。"));
+        else { const list = node("ul", "list"); evidenceRows.forEach((row) => { const item = node("li"); item.append(node("strong", "", `${text(row.ts_code)} · ${kindLabel(row.kind)}`), node("br"), node("span", "", `发布时间 ${escDate(row.published_at)} · 可用时间 ${escDate(row.available_at)} · 质量 ${text(row.quality)}`), node("br"), node("span", "", `情绪 ${text(row.sentiment)}（词典提示，不是事实判断） · ${text(row.title || row.content, "无摘要")}`)); const safeUrl = safeHttpUrl(row.url); if (safeUrl) { const link = document.createElement("a"); link.href = safeUrl; link.target = "_blank"; link.rel = "noopener noreferrer"; link.textContent = "打开原文"; item.append(node("br"), link); } list.append(item); }); evidence.append(list); }
+        const factors = $("latest-factors"); clear(factors); const factorEntries = entries.filter((entry) => entry && entry.ts_code); if (!factorEntries.length) factors.append(notice("暂无逐股票因素；各因素值按未知处理。", "warning")); else { const factorList = node("ul", "list"); factorEntries.forEach((entry) => factorList.append(node("li", "", `${text(entry.ts_code)} · ${text(entry.name)}：${factorText(entry.factor_values)}`))); factors.append(factorList); } const changes = Array.isArray(latest.changes) ? latest.changes : []; if (changes.length) { const list = node("ul", "list"); changes.forEach((change) => list.append(node("li", "", change))); factors.append(node("div", "section-title", "版本变更"), list); }
+      }
+
+      function renderHistory() {
+        const rows = Array.isArray(state.history) ? state.history : [];
+        const wrapper = $("history-table"); clear(wrapper);
+        if (!rows.length) { wrapper.append(node("div", "table-empty", "暂无计划版本。")); return; }
+        const table = document.createElement("table"); const trHead = document.createElement("tr"); ["版本", "创建时间", "日期", "状态", "操作"].forEach((label) => trHead.append(node("th", "", label))); const thead = document.createElement("thead"); thead.append(trHead); table.append(thead);
+        const body = document.createElement("tbody"); rows.forEach((row) => { const tr = document.createElement("tr"); [text(row.version_id), escDate(row.created_at), escDate(row.as_of), statusName(row.status)].forEach((value) => tr.append(node("td", "", value))); const action = node("td"); const button = node("button", "table-action", "查看完整版本"); button.type = "button"; button.addEventListener("click", () => loadVersion(row.version_id)); action.append(button); tr.append(action); body.append(tr); }); table.append(body); wrapper.append(table);
+      }
+
+      async function loadVersion(versionId) {
+        if (!versionId) return;
+        show($("history-detail"), true); $("history-detail-title").textContent = `完整版本结果 · ${versionId}`; $("history-detail-content").textContent = "正在读取版本…";
+        try { const response = await request(`/api/planner/version/${encodeURIComponent(versionId)}`); $("history-detail-content").textContent = JSON.stringify(response.result || response, null, 2); }
+        catch (error) { $("history-detail-content").textContent = error.message || "读取版本失败。"; }
+      }
+
+      function updateMonitorNote() {
+        const last = state.latest && state.latest.created_at ? `最近版本 ${state.latest.created_at}` : "尚无已完成复核";
+        $("review-monitor-note").textContent = $("review-auto").checked ? `自动复核已开启，页面打开期间每 30 分钟检查一次（16:00 后）；${last}。页面关闭不再发起新任务，已提交任务继续运行。` : `当前未监测；${last}。页面关闭不再发起新任务，已提交任务继续运行。`;
+      }
+      function configureAutoReview() {
+        if (state.autoTimer) { clearInterval(state.autoTimer); state.autoTimer = null; }
+        try { $("review-auto").checked = window.localStorage.getItem("ashare.planner.autoReview") === "on"; } catch (_) { $("review-auto").checked = false; }
+        updateMonitorNote();
+        if ($("review-auto").checked) state.autoTimer = window.setInterval(() => { const hour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Shanghai", hour: "2-digit", hourCycle: "h23" }).format(new Date())); if (state.backendReady && hour >= 16 && !state.reviewId && !activeJobId()) startReview(); }, 30 * 60 * 1000);
+      }
+
+      function renderState(refreshProfile = false) { if (refreshProfile || !state.profileDirty) fillProfile(state.profile || {}); renderPositions(); renderAccountConfirmation(); renderLatest(); renderHistory(); updateMonitorNote(); }
+      async function loadState(refreshProfile = false) {
+        try {
+          const response = await request("/api/planner/state");
+          const previousAccountRevision = state.accountRevision;
+          const nextAccountRevision = response.account_revision === undefined ? null : response.account_revision;
+          const accountRevisionChanged = previousAccountRevision !== null && previousAccountRevision !== undefined && nextAccountRevision !== previousAccountRevision;
+          const accountFormNeedsRecheck = state.accountConfirmationDirty || $("account-positions-complete").checked;
+          if (accountRevisionChanged) {
+            $("account-positions-complete").checked = false;
+            if (accountFormNeedsRecheck && !state.accountConfirmationJustSaved) state.accountConfirmationDirty = true;
+          }
+          state.backendReady = response.planner_api_version === 3;
+          for (const id of ["profile-submit", "position-submit", "evidence-submit", "review-submit", "review-auto", "account-confirmation-submit"]) $(id).disabled = !state.backendReady;
+          if (!state.backendReady) throw new Error("网页已更新，后台仍是旧版本。请退出旧工作台后台后重新双击启动工作台，再使用持续计划。");
+          state.csrf = response.csrf || state.csrf;
+          state.profile = response.profile || {};
+          state.positions = Array.isArray(response.positions) ? response.positions : [];
+          state.latest = response.latest || null;
+          state.history = Array.isArray(response.history) ? response.history : [];
+          state.accountRevision = nextAccountRevision;
+          state.accountCheck = response.account_check || { status: "unconfirmed", reasons: [], confirmation: null };
+          state.activeJob = response.active_job || null;
+          updateAccountConfirmationAvailability();
+          renderState(refreshProfile);
+          setStatus("profile-status", "参数已加载。", "completed");
+          setTag("profile-tag", "complete");
+          const id = activeJobId();
+          if (id && !state.reviewId) { state.reviewId = id; pollReview(id); }
+          updateAccountConfirmationAvailability();
+          if (accountRevisionChanged && accountFormNeedsRecheck && !state.accountConfirmationJustSaved) showMessage("账户资料或持仓已变化，完整性确认已取消；请重新核对后提交。", "warning");
+        }
+        catch (error) { updateAccountConfirmationAvailability(); setStatus("profile-status", error.message || "无法读取持续计划状态。", "failed"); setTag("profile-tag", "failed"); showMessage(error.message || "无法读取持续计划状态。", "error"); }
+      }
+
+      function renderReviewJob(job) {
+        const status = job.status;
+        const resultStatus = status === "completed" && job.result && job.result.status ? job.result.status : status;
+        const running = !["completed", "failed", "cancelled"].includes(status);
+        state.activeJob = running ? job.id : null;
+        setTag("review-tag", resultStatus);
+        setStatus("review-status", running ? "复核运行中，正在接收后台进度…" : status === "completed" ? `复核${statusName(resultStatus)}，计划状态已刷新。` : status === "cancelled" ? "复核已取消，已保留日志。" : `复核失败：${text(job.error, "请查看日志。")}`, resultStatus);
+        const details = $("review-log-wrap"); show(details, Boolean(job.logs)); $("review-log").textContent = text(job.logs, "尚未收到日志。"); details.open = running;
+        $("review-submit").disabled = running; show($("review-cancel"), running);
+        updateAccountConfirmationAvailability();
+        updateMonitorNote();
+        if (!running) { state.reviewId = null; updateAccountConfirmationAvailability(); if (status === "completed") loadState(); }
+      }
+      async function pollReview(id) {
+        if (state.pollTimer) clearTimeout(state.pollTimer);
+        try {
+          const job = await request(`/api/jobs/${encodeURIComponent(id)}`);
+          if (state.reviewId !== id) return;
+          renderReviewJob(job);
+          if (!["completed", "failed", "cancelled"].includes(job.status)) state.pollTimer = window.setTimeout(() => pollReview(id), 1500);
+        } catch (error) { state.reviewId = null; state.activeJob = null; $("review-submit").disabled = false; show($("review-cancel"), false); updateAccountConfirmationAvailability(); setStatus("review-status", error.message || "读取复核进度失败。", "failed"); setTag("review-tag", "failed"); updateMonitorNote(); }
+      }
+      async function startReview() {
+        if (!state.backendReady) return;
+        if (state.reviewId || activeJobId()) { showMessage("已有复核任务在运行，请先完成或取消。", "warning"); return; }
+        $("review-submit").disabled = true; updateAccountConfirmationAvailability(true); setTag("review-tag", "running"); setStatus("review-status", "正在提交复核…", "running");
+        try { const response = await request("/api/planner/review", { method: "POST", body: {} }); const id = response.id || response.job_id; if (!id) throw new Error("服务未返回复核任务编号。"); state.reviewId = id; state.activeJob = id; updateMonitorNote(); pollReview(id); }
+        catch (error) { $("review-submit").disabled = false; updateAccountConfirmationAvailability(); setTag("review-tag", "failed"); setStatus("review-status", error.message || "复核提交失败。", "failed"); }
+      }
+      async function cancelReview() {
+        if (!state.reviewId) return;
+        try { await request("/api/cancel", { method: "POST", body: { id: state.reviewId } }); setStatus("review-status", "已发送取消请求，等待后台确认。", "cancelled"); }
+        catch (error) { showMessage(error.message || "取消复核失败。", "error"); }
+      }
+
+      function bind() {
+        $("profile-form").addEventListener("submit", saveProfile);
+        $("profile-form").querySelectorAll("input").forEach((field) => field.addEventListener("input", () => { state.profileDirty = true; updateAccountConfirmationAvailability(); }));
+        $("account-confirmation-form").addEventListener("submit", saveAccountConfirmation);
+        $("account-confirmation-form").querySelectorAll("input, textarea").forEach((field) => field.addEventListener(field.type === "checkbox" ? "change" : "input", () => { state.accountConfirmationDirty = true; }));
+        $("position-form").addEventListener("submit", savePosition);
+        $("evidence-form").addEventListener("submit", saveEvidence);
+        $("position-reset").addEventListener("click", () => $("position-form").reset());
+        $("review-submit").addEventListener("click", startReview);
+        $("review-cancel").addEventListener("click", cancelReview);
+        $("review-auto").addEventListener("change", () => { try { window.localStorage.setItem("ashare.planner.autoReview", $("review-auto").checked ? "on" : "off"); } catch (_) {} configureAutoReview(); });
+      }
+      bind();
+      configureAutoReview();
+      window.addEventListener("beforeunload", () => { if (state.autoTimer) clearInterval(state.autoTimer); if (state.pollTimer) clearTimeout(state.pollTimer); });
+      loadState();
+    })();
+  </script>
+</body>
+</html>

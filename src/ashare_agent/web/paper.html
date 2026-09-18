@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模拟账户 · A股研究工作台</title>
+<style>
+:root{--ink:#17263a;--muted:#64748b;--navy:#112846;--teal:#087f79;--line:#dce5ec}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fa;color:var(--ink);font:14px/1.6 "Microsoft YaHei UI",system-ui,sans-serif}
+header{background:var(--navy);color:white;padding:24px max(24px,calc((100vw - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:24px}
+header strong{font-size:18px}nav{display:flex;gap:22px}nav a{color:#c5d7e8;text-decoration:none}nav a[aria-current]{color:white;border-bottom:2px solid #61d3c7}
+main{max-width:1180px;margin:36px auto;padding:0 24px}h1{font-size:30px;margin:0 0 8px}h2{font-size:18px;margin:0 0 8px}p{margin:6px 0 16px}.muted{color:var(--muted)}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:24px;margin:20px 0;box-shadow:0 8px 30px #11284605}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.grid .card{margin:0}
+label{display:block;font-weight:600;margin:14px 0 6px}input,select,button{font:inherit;border:1px solid #cbd7e1;border-radius:8px;padding:11px 13px}input,select{width:100%;background:#fff;color:var(--ink)}
+button{cursor:pointer;background:var(--teal);color:white;border-color:var(--teal);font-weight:600}button.secondary{background:#fff;color:var(--ink);border-color:#cbd7e1}button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.notice{border-left:4px solid #d8a139;background:#fff8e8;padding:14px 18px;border-radius:6px;margin:16px 0;white-space:pre-wrap}.good{background:#eaf7f1;border-color:#238b6d}.error{background:#fff1f3;border-color:#b34355}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.stat{background:#f5f8fa;padding:14px;border-radius:9px}.stat strong{display:block;font-size:22px;margin-top:5px;font-variant-numeric:tabular-nums}.tag{display:inline-block;border-radius:20px;background:#e9f2f4;color:#1b6270;padding:3px 12px;margin-left:10px;font-size:13px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:11px;border-bottom:1px solid #e6edf2;white-space:nowrap}th{background:#f4f7fa;font-size:12px;color:var(--muted)}
+pre{padding:18px;background:#10243c;color:#deebf8;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:440px;overflow:auto}summary{cursor:pointer;font-weight:600}.hidden{display:none}footer{margin:28px 0;color:var(--muted);font-size:12px}
+@media(max-width:760px){header{padding:20px;display:block}nav{margin-top:12px;gap:16px}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}main{padding:0 15px;margin-top:24px}.card{padding:18px}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header><strong>A股研究工作台</strong><nav><a href="/">当前研究</a><a href="/planner">持续交易计划</a><a href="/paper" aria-current="page">模拟账户</a><a href="/intraday">盘中监控</a></nav></header>
+<main>
+<h1>把计划放进连续账本</h1><p class="muted">独立虚拟资金 · 日间决策隔离 · 保守成交 · 可追溯记录</p>
+<div id="message" class="notice" role="status">正在连接本地工作台…</div>
+<div class="grid">
+<section class="card"><h2>1. 建立虚拟账户</h2><p class="muted">从零持仓开始。该资金只属于模拟账本，与你的券商资产及手工持仓分开。</p>
+<form id="create-form"><label for="name">账户名称</label><input id="name" maxlength="80" placeholder="例如：机械基线观察" required>
+<label for="cash">初始虚拟资金（元）</label><input id="cash" type="number" min="0.01" step="0.01" placeholder="请输入模拟金额" required>
+<div class="actions"><button id="create" disabled>创建模拟账户</button></div></form></section>
+<section class="card"><h2>2. 检查数据，再推进今天</h2><p class="muted">D 日形成条件委托，D+1 才尝试成交。缺失交易状态或可见时间证明时会停止，不补做历史前瞻。</p>
+<label for="account">模拟账户</label><select id="account"><option value="">尚未加载</option></select>
+<label for="snapshot">数据快照</label><select id="snapshot"><option value="">尚未加载</option></select>
+<div class="actions"><button id="check" class="secondary" disabled>检查是否可运行</button><button id="advance" disabled>推进今日模拟</button><button id="refresh" class="secondary" type="button">刷新状态</button></div>
+</section></div>
+<section id="account-panel" class="card hidden"><h2><span id="account-title">账户</span><span id="account-status" class="tag"></span></h2>
+<div id="account-reasons"></div><div id="stats" class="stats"></div>
+<h2>模拟持仓</h2><div id="positions" class="table-wrap"></div>
+<h2 style="margin-top:26px">条件委托与未成交记录</h2><p class="muted">委托不等于成交；拒绝原因保留在记录中。</p><div id="orders" class="table-wrap"></div>
+<h2 style="margin-top:26px">已模拟成交</h2><div id="fills" class="table-wrap"></div>
+<details style="margin-top:20px"><summary>账户完整记录</summary><pre id="account-json"></pre></details>
+</section>
+<section id="job-panel" class="card hidden"><h2>本次检查 / 推进</h2><div id="job-message" class="notice"></div><pre id="job-log"></pre><details><summary>完整结果及缺失数据原因</summary><pre id="job-json"></pre></details></section>
+<footer>尚未处理任何交易日时，收益显示为未知。合成演示和日后补取的行情不能证明真实前瞻表现；这里不连接券商、不发送真实订单。</footer>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const state = {csrf:null, ready:false, active:null, job:null, timer:null, checked:null, busy:false};
+  const names = {active:"持续记录中",missed_session:"已漏日，停止推进",waiting_data:"等待可信数据",ready:"可推进",advanced:"本日已推进",completed:"已完成",already_processed:"本日已处理",version_blocked:"版本变化，已停止",blocked:"条件未满足",failed:"运行失败",running:"后台处理中",cancelled:"已取消",report_failed:"账本已提交，报告待恢复"};
+  const label = value => names[value] || value || "待核验";
+  const text = value => value === undefined || value === null ? "未知" : String(value);
+  const money = value => value === null || value === undefined ? "未知" : Number(value).toLocaleString("zh-CN",{minimumFractionDigits:2,maximumFractionDigits:2});
+  function node(tag,value){const n=document.createElement(tag);n.textContent=text(value);return n;}
+  function message(value,error=false){$("message").textContent=value;$("message").className="notice"+(error?" error":"");}
+  function available(){const lock=!state.ready||state.busy||Boolean(state.active);$("account").disabled=lock;$("snapshot").disabled=lock;$("create").disabled=lock;$("check").disabled=lock||!$("account").value||!$("snapshot").value;$("advance").disabled=lock||state.checked!==$("account").value+":"+$("snapshot").value;}
+  async function api(path,body){const response=await fetch(path,body===undefined?{cache:"no-store"}:{method:"POST",headers:{"Content-Type":"application/json","X-CSRF-Token":state.csrf},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw Error(result.error||"请求失败");return result;}
+  function choices(id,rows,key,title,empty){const selected=$(id).value;$(id).replaceChildren();if(!rows.length){const opt=node("option",empty);opt.value="";$(id).append(opt);return;}rows.forEach(row=>{const opt=node("option",title(row));opt.value=key(row);$(id).append(opt);});if(rows.some(r=>key(r)===selected))$(id).value=selected;}
+  function table(id,rows,fields){const host=$(id);host.replaceChildren();if(!Array.isArray(rows)||!rows.length){host.append(node("p","暂无记录"));return;}const t=document.createElement("table"),head=document.createElement("tr"),body=document.createElement("tbody");fields.forEach(f=>head.append(node("th",f[0])));const thead=document.createElement("thead");thead.append(head);t.append(thead);rows.forEach(row=>{const tr=document.createElement("tr");fields.forEach(f=>tr.append(node("td",typeof f[1]==="function"?f[1](row):row[f[1]])));body.append(tr);});t.append(body);host.append(t);}
+  async function account(){const id=$("account").value;$("account-panel").classList.toggle("hidden",!id);if(!id)return;const result=await api("/api/paper/accounts/"+encodeURIComponent(id));renderAccount(result);}
+  function renderAccount(result){
+    $("account-title").textContent=result.name||result.account?.name||"模拟账户";$("account-status").textContent=label(result.status);$("account-json").textContent=JSON.stringify(result,null,2);
+    $("account-reasons").replaceChildren();(result.reasons||[]).forEach(reason=>{const n=node("div",reason);n.className="notice";$("account-reasons").append(n);});
+    $("stats").replaceChildren();const metrics=result.metrics||{};
+    [["虚拟可用现金",money(result.cash)], ["已处理交易日",result.sessions_count??result.sessions?.length??0],["最近处理日",result.last_session??"尚未开始"],["累计模拟收益",metrics.total_return===null||metrics.total_return===undefined?"未知":(Number(metrics.total_return)*100).toFixed(2)+"%"]].forEach(([k,v])=>{const n=document.createElement("div");n.className="stat";n.append(node("span",k),node("strong",v));$("stats").append(n);});
+    table("positions",result.positions,[["代码","ts_code"],["股数","quantity"],["T+1 可卖","available_quantity"]]);
+    table("orders",result.orders,[["股票","ts_code"],["方向","side"],["执行日","execute_date"],["股数","quantity"],["状态","status"],["原因","reason"]]);
+    table("fills",result.fills,[["日期","trade_date"],["股票","ts_code"],["方向","side"],["股数","quantity"],["模拟成交价（含滑点）","price"],["费用","fee"]]);
+  }
+  async function refresh(){try{const result=await api("/api/paper/state");state.ready=result.paper_api_version===1;state.csrf=result.csrf;state.active=result.active_job;choices("account",result.accounts||[],r=>r.account_id||r.id,r=>r.name||r.account?.name||r.account_id||r.id,"请先创建虚拟账户");choices("snapshot",result.snapshots||[],r=>r.snapshot_id||r.id,r=>(r.snapshot_id||r.id)+(r.synthetic?" · 合成演示，不能用于前瞻":""),"没有可信快照；可先建立账户等待数据");await account();message(!state.ready?"后台版本不匹配，请重新启动最新版工作台。":state.active?"有后台任务运行；完成后可继续操作。":"资金与手工账户隔离。先检查数据；检查通过后才开放今日推进。");if(state.active&&!state.job){state.job=state.active;poll();}}catch(error){state.ready=false;message(error.message,true);}finally{available();}}
+  async function start(kind){state.checked=kind==="paper-check"?null:state.checked;state.busy=true;available();try{const result=await api("/api/run",{kind,account_id:$("account").value,snapshot_id:$("snapshot").value});state.job=result.id;state.active=result.id;$("job-panel").classList.remove("hidden");await poll();}catch(error){message(error.message,true);}finally{state.busy=false;available();}}
+  async function poll(){clearTimeout(state.timer);if(!state.job)return;try{const job=await api("/api/jobs/"+encodeURIComponent(state.job));$("job-panel").classList.remove("hidden");$("job-message").textContent="任务："+label(job.status)+(job.result?"；数据 / 账本："+label(job.result.status):"");$("job-log").textContent=job.logs||"";$("job-json").textContent=JSON.stringify(job.result||{error:job.error},null,2);if(job.status==="running"){state.timer=setTimeout(poll,2000);}else{state.active=null;state.job=null;if(job.kind==="paper-check"&&job.result?.status==="ready")state.checked=job.result.account_id+":"+job.result.snapshot_id;else state.checked=null;await refresh();}}catch(error){message(error.message,true);state.timer=setTimeout(poll,5000);}finally{available();}}
+  $("create-form").addEventListener("submit",async event=>{event.preventDefault();state.busy=true;available();try{const result=await api("/api/paper/create",{name:$("name").value.trim(),initial_cash:$("cash").value});await refresh();$("account").value=result.account_id||result.id;state.checked=null;await account();message("虚拟账户已建立。尚未成交；先准备并检查可信数据快照。");}catch(error){message(error.message,true);}finally{state.busy=false;available();}});
+  $("account").addEventListener("change",async()=>{state.checked=null;available();try{await account();}catch(error){message(error.message,true);}});
+  $("snapshot").addEventListener("change",()=>{state.checked=null;available();});$("check").addEventListener("click",()=>start("paper-check"));$("advance").addEventListener("click",()=>start("paper-advance"));$("refresh").addEventListener("click",refresh);refresh();
+})();
+</script>
+</body></html>
